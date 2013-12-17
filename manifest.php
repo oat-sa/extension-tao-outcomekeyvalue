@@ -9,16 +9,16 @@ $extpath = dirname(__FILE__).DIRECTORY_SEPARATOR;
 $taopath = dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'tao'.DIRECTORY_SEPARATOR;
 	
 return array(
-	'name' => 'taoKeyValueResult',
-	'description' => 'Implements the Results storage and using the KeyValue persistency (Redis or mysql as KV driver ',
+	'name' => 'taoAltResultStorage',
+	'description' => 'Implements Alternative Result storage results interface using persistencies',
 	'version' => '1.0',
 	'author' => 'Open Assessment Technologies',
 	'dependencies' => array('taoResultServer'),
 	'models' => array(
-		'http://www.tao.lu/Ontologies/taoKeyValueResult.rdf#'
+		'http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#'
         ),
 	'install' => array('rdf' => array(
-			dirname(__FILE__). '/models/ontology/taoLtiBasicOutcome.rdf'
+			dirname(__FILE__). '/models/ontology/taoAltResultStorage.rdf'
 		)),
 	'classLoaderPackages' => array( 
 		dirname(__FILE__).'/actions/',
@@ -38,7 +38,7 @@ return array(
 		"DIR_HELPERS"			=> $extpath."helpers".DIRECTORY_SEPARATOR,
 	
 		# default module name
-		'DEFAULT_MODULE_NAME'	=> 'taoLtiBasicOutcome',
+		'DEFAULT_MODULE_NAME'	=> 'taoAltResultStorage',
 	
 		#default action name
 		'DEFAULT_ACTION_NAME'	=> 'index',
@@ -47,10 +47,10 @@ return array(
 		'BASE_PATH'				=> $extpath,
 	
 		#BASE URL (usually the domain root)
-		'BASE_URL'				=> ROOT_URL . '/taoLtiBasicOutcome',
+		'BASE_URL'				=> ROOT_URL . '/taoAltResultStorage',
 	
 		#BASE WWW the web resources path
-		'BASE_WWW'				=> ROOT_URL . '/taoLtiBasicOutcome/views/',
+		'BASE_WWW'				=> ROOT_URL . '/taoAltResultStorage/views/',
 	 
 	  	#TAO extension Paths
 		'TAOBASE_WWW'			=> ROOT_URL  . '/tao/views/',
