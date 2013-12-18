@@ -29,16 +29,44 @@ function out($msg = ''){
 out();
 out("Running ".basename(__FILE__));
 
-$prefix = 'taoResult';
+$prefix = 'callIdVariables';
 
 $keyValueStorage = new taoAltResultStorage_models_classes_KeyValueResultStorage();
 
 //retrieve all keys 
 $keys = common_persistence_KeyValuePersistence::getPersistence('keyValueResult')->keys($prefix.'*');
-print_r($keys);
+
+
+
 foreach ($keys as $callId) {
-   print_r($keyValueStorage->getVariables($callId));
+   $callId = str_replace($prefix,'',$callId);
+   out("----- Call ID -----".$callId);
+   
+   $variable = $keyValueStorage->getVariables($callId);
+   foreach ($variable as $variableIdentifier => $data) {
+       out("* Variable:\t".$variableIdentifier);
+       out("* payload size:\t".strlen($data));
+       //out("* payload :\t". $data);
+   }
    //print_r(common_persistence_KeyValuePersistence::getPersistence('keyValueResult')->get($callId));
+}
+$prefix = 'resultsTestTaker';
+$keys = common_persistence_KeyValuePersistence::getPersistence('keyValueResult')->keys($prefix.'*');
+foreach ($keys as $key) {
+   $key = str_replace($prefix,'',$key);
+   out("----- Test Taker -----");
+   $testTaker = $keyValueStorage->getTestTaker($key);
+   out("* deliveryResultIdentifier:\t".$testTaker["deliveryResultIdentifier"]);
+   out("* testTakerIdentifier:\t".$testTaker["testTakerIdentifier"]);
+}
+$prefix = 'resultsDelivery';
+$keys = common_persistence_KeyValuePersistence::getPersistence('keyValueResult')->keys($prefix.'*');
+foreach ($keys as $key) {
+   $key = str_replace($prefix,'',$key);
+   out("----- Delivery -----");
+   $testTaker = $keyValueStorage->getTestTaker($key);
+   out("* deliveryResultIdentifier:\t".$testTaker["deliveryResultIdentifier"]);
+   out("* deliveryIdentifier:\t".$testTaker["testTakerIdentifier"]);
 }
 
 

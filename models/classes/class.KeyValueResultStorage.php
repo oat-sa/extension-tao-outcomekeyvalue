@@ -38,7 +38,12 @@
 class taoAltResultStorage_models_classes_KeyValueResultStorage
     extends tao_models_classes_GenerisService
     implements taoResultServer_models_classes_ResultStorage {
-    static $keyPrefix = 'taoResults';
+    
+    //prefixes used for keys
+    static $keyPrefixCallId = 'callIdVariables';
+    static $keyPrefixTestTaker = 'resultsTestTaker';
+    static $keyPrefixDelivery = 'resultsDelivery';
+    
     private $persistence;
     /**
     * @param string deliveryResultIdentifier if no such deliveryResult with this identifier exists a new one gets created
@@ -48,20 +53,12 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
         $this->persistence = $this->getPersistence();
         common_ext_ExtensionsManager::singleton()->getExtensionById("taoAltResultStorage");
     }
-    
+
     private function getPersistence(){
         $persistence =  common_persistence_KeyValuePersistence::getPersistence('keyValueResult');
         //check that persistence is a correct Key VAlue persistence 
         return $persistence;
     }
-    
-    public function getVariables($callId) {
-        return $this->persistence->hGetAll($callId);
-    }
-    public function getVariable($callId, $variableIdentifier) {
-        return $this->persistence->hGet($callId, $variableIdentifier );
-    }
-  
     /**
      * 
      * @param type $callId
@@ -70,8 +67,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
      */
     private function storeVariableKeyValue($callId, $variableIdentifier, $data){
         
-        $callId = self::$keyPrefix.$callId;
-        /*seems to be the same compelxity to be benchmarked against the general case*/
+        $callId = self::$keyPrefixCallId.$callId;
+        /*seems to be the same complexity, worse if not yet value set for that key
+         *   to be benchmarked against the general case only*/
         //Time complexity: O(1)
         $observed = $this->persistence->hExists($callId, $variableIdentifier);
         if (!($observed)) {
@@ -90,7 +88,27 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
         }
        
     }
+    public function getVariables($callId) {
+        return $this->persistence->hGetAll(self::$keyPrefixCallId.$callId);
+    }
+    public function getVariable($callId, $variableIdentifier) {
+        return $this->persistence->hGet(self::$keyPrefixCallId.$callId, $variableIdentifier );
+    }
     
+    public function getTestTaker($deliveryResultIdentifier) {
+        return $this->persistence->hGetAll(self::$keyPrefixTestTaker.$deliveryResultIdentifier);
+    }
+    public function getDelivery($deliveryResultIdentifier) {
+        return $this->persistence->hGetAll(self::$keyPrefixDelivery.$deliveryResultIdentifier);
+    }
+    
+      /**
+      * Ids must be delegated on key value persistency as we may want to load balance and keep unique identifier
+     */
+    public function spawnResult(){
+        return $this->persistence->incr("resultsIdentifier");
+        
+    }   
     
     /**
      * @param type $deliveryResultIdentifier lis_result_sourcedid
@@ -104,7 +122,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "test"  => $test,
             "item"  => null,
-            "variable"  => $testVariable,
+            "variable"  => $testVariable->toJson(),
             "callIdItem"    => $callIdTest
         );
         $this->storeVariableKeyValue($callIdItem, $itemVariable->getIdentifier(), $data);
@@ -115,15 +133,19 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
     /*sic*/
     public function configure(core_kernel_classes_Resource $resultserver, $callOptions = array()) {
     }
-     /**
-     * In the case of An LtiBasic OutcomeSubmission, spawnResult has no effect
-     */
-    public function spawnResult(){
-    }
+   
     public function storeRelatedTestTaker($deliveryResultIdentifier, $testTakerIdentifier) {
+        $this->persistence->hmSet(self::$keyPrefixTestTaker.$deliveryResultIdentifier, array(
+            "deliveryResultIdentifier" => $deliveryResultIdentifier,
+            "testTakerIdentifier" => $testTakerIdentifier,
+        ));
     }
 
     public function storeRelatedDelivery($deliveryResultIdentifier, $deliveryIdentifier) {
+         $this->persistence->hmSet(self::$keyPrefixDelivery.$deliveryResultIdentifier, array(
+            "deliveryResultIdentifier" => $deliveryResultIdentifier,
+            "deliveryIdentifier" => $deliveryIdentifier,
+        ));
     }
 
     public function storeItemVariable($deliveryResultIdentifier, $test, $item, taoResultServer_models_classes_Variable $itemVariable, $callIdItem){
@@ -132,7 +154,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "test"  => $test,
             "item"  => $item,
-            "variable"  => $itemVariable,
+            "variable"  => $itemVariable->toJson(),
             "callIdItem"    => $callIdItem
         );
         $this->storeVariableKeyValue($callIdItem, $itemVariable->getIdentifier(), $data);
