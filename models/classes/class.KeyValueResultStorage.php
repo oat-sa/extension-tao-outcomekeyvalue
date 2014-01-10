@@ -37,7 +37,8 @@
 
 class taoAltResultStorage_models_classes_KeyValueResultStorage
     extends tao_models_classes_GenerisService
-    implements taoResultServer_models_classes_ResultStorage {
+    implements taoResultServer_models_classes_WritableResultStorage,
+        taoResultServer_models_classes_ReadableResultStorage {
     
     //prefixes used for keys
     static $keyPrefixCallId = 'callIdVariables';
@@ -101,6 +102,21 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
     public function getDelivery($deliveryResultIdentifier) {
         return $this->persistence->hGetAll(self::$keyPrefixDelivery.$deliveryResultIdentifier);
     }
+    
+     public function getDeliveryResultIdentifiers(){}
+
+
+    /**
+     * @return taoResultServer_models_classes_Variable $variable
+     * 
+     */
+    public function getItemVariables($deliveryResultIdentifier) {}
+    
+
+        public function getTestVariables($deliveryResultIdentifier){}
+    
+    
+    
     
       /**
       * Ids must be delegated on key value persistency as we may want to load balance and keep unique identifier
