@@ -112,7 +112,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
             "variable"  => $testVariable->toJson(),
             "callIdTest"    => $callIdTest
         );
-        $this->storeVariableKeyValue($callIdItem, $testVariable->getIdentifier(), $data);
+        $this->storeVariableKeyValue($callIdTest, $testVariable->getIdentifier(), $data);
     }
     /*
     * retrieve specific parameters from the resultserver to configure the storage
