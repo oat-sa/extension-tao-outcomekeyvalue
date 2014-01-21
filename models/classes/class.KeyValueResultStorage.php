@@ -27,8 +27,8 @@
     *  is done using  get or hget for aparticular variable 0(1)
     *  The jsondata contains all the observations recorderd with the variable data + context 
     *   
-    *   callId => { 
-    *   (field)variableIdentifier : json data,
+    *   keyPrefixCallId.$callId => 
+    *   (field)variableIdentifier : json data ,
     *   (field)variableIdentifier : json data,
     *   ...
     * }
@@ -41,9 +41,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
         taoResultServer_models_classes_ReadableResultStorage {
     
     //prefixes used for keys
-    static $keyPrefixCallId = 'callIdVariables';
-    static $keyPrefixTestTaker = 'resultsTestTaker';
-    static $keyPrefixDelivery = 'resultsDelivery';
+    static $keyPrefixCallId = 'callIdVariables'; //keyPrefixCallId.$callId --> variables
+    static $keyPrefixTestTaker = 'resultsTestTaker'; //keyPrefixTestTaker.$deliveryResultIdentifier -->testtaker 
+    static $keyPrefixDelivery = 'resultsDelivery';//keyPrefixDelivery.$deliveryResultIdentifier -->testtaker
     
     private $persistence;
     /**
@@ -75,54 +75,26 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
         $observed = $this->persistence->hExists($callId, $variableIdentifier);
         if (!($observed)) {
             //Time complexity: O(1)
-            $this->persistence->hSet($callId, $variableIdentifier, json_encode($data));
+            $this->persistence->hSet($callId, $variableIdentifier, json_encode(array($data)));
         } else {
             //Time complexity: O(1)
             $variableObservations = json_decode($this->persistence->hGet($callId, $variableIdentifier));
-            if (is_array($variableObservations)) {
+            //if (is_array($variableObservations)) {
             $variableObservations[] = $data;
-            } else {
+            /*} else {
             $variableObservations = array($data);
-            }
+            }*/
             //Time complexity: O(1)
             $this->persistence->hSet($callId, $variableIdentifier, json_encode($variableObservations));
         }
        
     }
-    public function getVariables($callId) {
-        return $this->persistence->hGetAll(self::$keyPrefixCallId.$callId);
-    }
-    public function getVariable($callId, $variableIdentifier) {
-        return $this->persistence->hGet(self::$keyPrefixCallId.$callId, $variableIdentifier );
-    }
-    
-    public function getTestTaker($deliveryResultIdentifier) {
-        return $this->persistence->hGetAll(self::$keyPrefixTestTaker.$deliveryResultIdentifier);
-    }
-    public function getDelivery($deliveryResultIdentifier) {
-        return $this->persistence->hGetAll(self::$keyPrefixDelivery.$deliveryResultIdentifier);
-    }
-    
-     public function getDeliveryResultIdentifiers(){}
-
-
-    /**
-     * @return taoResultServer_models_classes_Variable $variable
-     * 
-     */
-    public function getItemVariables($deliveryResultIdentifier) {}
-    
-
-        public function getTestVariables($deliveryResultIdentifier){}
-    
-    
-    
     
       /**
       * Ids must be delegated on key value persistency as we may want to load balance and keep unique identifier
      */
     public function spawnResult(){
-        return $this->persistence->incr("resultsIdentifier");
+        return "redistorage_".$this->persistence->incr("resultsIdentifier");
         
     }   
     
@@ -137,9 +109,8 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
          $data = array(
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "test"  => $test,
-            "item"  => null,
             "variable"  => $testVariable->toJson(),
-            "callIdItem"    => $callIdTest
+            "callIdTest"    => $callIdTest
         );
         $this->storeVariableKeyValue($callIdItem, $itemVariable->getIdentifier(), $data);
     }
@@ -170,12 +141,70 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "test"  => $test,
             "item"  => $item,
-            "variable"  => $itemVariable->toJson(),
+            "variable"  => serialize($itemVariable),
             "callIdItem"    => $callIdItem
         );
         $this->storeVariableKeyValue($callIdItem, $itemVariable->getIdentifier(), $data);
            
     }
+    
+    
+     /***
+     * o(1)
+     * 
+     */
+    public function getVariables($callId) {
+        return $this->persistence->hGetAll(self::$keyPrefixCallId.$callId);
+    }
+    public function getVariable($callId, $variableIdentifier) {
+        return $this->persistence->hGet(self::$keyPrefixCallId.$callId, $variableIdentifier );
+    }
+    
+    public function getTestTaker($deliveryResultIdentifier) {
+        return $this->persistence->hGetAll(self::$keyPrefixTestTaker.$deliveryResultIdentifier);
+    }
+    public function getDelivery($deliveryResultIdentifier) {
+        return $this->persistence->hGetAll(self::$keyPrefixDelivery.$deliveryResultIdentifier);
+    }
+    
+    
 
+     /**
+      * o(n) do not use real time
+      */
+    
+    public function getAllCallIds() {
+         $keys = $this->persistence->keys(self::$keyPrefixCallId.'*');
+         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixCallId );
+         return $keys;
+    }
+    public function getAllTestTakerIds(){
+         $deliveryResults = array();
+         $keys = $this->persistence->keys(self::$keyPrefixTestTaker.'*');
+         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixTestTaker );
+         foreach ($keys as $key) {
+             $deliveryResults[$key] =   $this->getTestTaker($key);
+         }
+         return $deliveryResults;
+    }
+    public function getAllDeliveryIds(){
+        $deliveryResults = array();
+         $keys = $this->persistence->keys(self::$keyPrefixDelivery.'*');
+         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery );
+         foreach ($keys as $key) {
+             $deliveryResults[$key] =   $this->getDelivery($key);
+         }
+         return $deliveryResults;
+    }
+    
+    
+
+     
+     /**
+      * helper 
+      */
+     private function subStrPrefix(&$value, $key, $prefix){
+         $value = str_replace($prefix, '', $value);
+     }
 }
 ?>
