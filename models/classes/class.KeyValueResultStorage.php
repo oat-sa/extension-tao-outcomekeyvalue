@@ -109,7 +109,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
          $data = array(
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "test"  => $test,
-            "variable"  => $testVariable->toJson(),
+            "variable"  => serialize($testVariable),
             "callIdTest"    => $callIdTest
         );
         $this->storeVariableKeyValue($callIdTest, $testVariable->getIdentifier(), $data);
