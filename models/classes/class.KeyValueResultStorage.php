@@ -105,7 +105,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
      * @param type $callIdTest ignored
      */
     public function storeTestVariable($deliveryResultIdentifier, $test, taoResultServer_models_classes_Variable $testVariable, $callIdTest){
-       
+        if (!($itemVariable->isSetEpoch())) {
+            $itemVariable->setEpoch(microtime());
+        } 
          $data = array(
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "test"  => $test,
@@ -136,7 +138,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
     }
 
     public function storeItemVariable($deliveryResultIdentifier, $test, $item, taoResultServer_models_classes_Variable $itemVariable, $callIdItem){
-           
+        if (!($itemVariable->isSetEpoch())) {
+            $itemVariable->setEpoch(microtime());
+        }   
         $data = array(
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "test"  => $test,
