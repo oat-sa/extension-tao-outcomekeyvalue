@@ -105,8 +105,8 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage
      * @param type $callIdTest ignored
      */
     public function storeTestVariable($deliveryResultIdentifier, $test, taoResultServer_models_classes_Variable $testVariable, $callIdTest){
-        if (!($itemVariable->isSetEpoch())) {
-            $itemVariable->setEpoch(microtime());
+        if (!($testVariable->isSetEpoch())) {
+            $testVariable->setEpoch(microtime());
         } 
          $data = array(
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
