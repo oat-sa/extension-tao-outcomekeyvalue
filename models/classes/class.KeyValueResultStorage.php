@@ -37,12 +37,19 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     implements taoResultServer_models_classes_WritableResultStorage, taoResultServer_models_classes_ReadableResultStorage
 {
     const KEY_NAMESPACE = "taoAltResultStorage"; 
+
+
     
     // prefixes used for keys
     static $keyPrefixCallId = 'taoAltResultStorage:callIdVariables'; // keyPrefixCallId.$callId --> variables
     static $keyPrefixTestTaker = 'taoAltResultStorage:resultsTestTaker'; // keyPrefixTestTaker.$deliveryResultIdentifier -->testtaker
     static $keyPrefixDelivery = 'taoAltResultStorage:resultsDelivery'; // keyPrefixDelivery.$deliveryResultIdentifier -->testtaker
-
+    
+    static $keyPrefixResultsId='taoAltResultStorage:resultsDeliveryId';
+    
+    //prefix for results identifier (<>redis keys)
+    static $valPrefixResultsId = 'resultsId_';
+    
     private $persistence;
 
     public function __construct()
@@ -95,11 +102,11 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     /**
      * Ids must be delegated on key value persistency as we may want to load balance and keep unique identifier
      */
-    public function spawnResult()
-    {
-        return "redistorage_" . $this->persistence->incr("resultsIdentifier");
-    }
-
+    public function spawnResult(){
+        return self::$valPrefixResultsId.$this->persistence->incr(self::$keyPrefixResultsId."resultsIdentifierIncr");
+        
+    }   
+    
     /**
      *
      * @param type $deliveryResultIdentifier

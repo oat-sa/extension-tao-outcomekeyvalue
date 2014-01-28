@@ -7,8 +7,8 @@
  */
 
 $todefine = array(
-    'KEY_VALUE_STORAGE' => 'http://www.tao.lu/Ontologies/taoKeyValueResult.rdf#taoKeyValueResults',
-    'TAO_LTI_BASIC_OUTCOME_MODEL'=>'http://www.tao.lu/Ontologies/taoKeyValueResult.rdf#taoKeyValueResults',
+    'KEY_VALUE_STORAGE' => 'http://www.tao.lu/Ontologies/taoKeyValueResult.rdf#taoKeyValueResults'
+  
 
     );
 
