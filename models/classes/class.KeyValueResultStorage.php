@@ -103,7 +103,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
      * Ids must be delegated on key value persistency as we may want to load balance and keep unique identifier
      */
     public function spawnResult(){
-        return self::$valPrefixResultsId.$this->persistence->incr(self::$keyPrefixResultsId."resultsIdentifierIncr");
+        return $this->persistence->incr(self::$keyPrefixResultsId."incrIdentifier");
         
     }   
     
