@@ -45,7 +45,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     static $keyPrefixTestTaker = 'taoAltResultStorage:resultsTestTaker'; // keyPrefixTestTaker.$deliveryResultIdentifier -->testtaker
     static $keyPrefixDelivery = 'taoAltResultStorage:resultsDelivery'; // keyPrefixDelivery.$deliveryResultIdentifier -->testtaker
     
-    static $keyPrefixResultsId='taoAltResultStorage:resultsDeliveryId';
+    static $keyPrefixResultsId='taoAltResultStorage:id';
     
     //prefix for results identifier (<>redis keys)
     static $valPrefixResultsId = 'resultsId_';
@@ -103,7 +103,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
      * Ids must be delegated on key value persistency as we may want to load balance and keep unique identifier
      */
     public function spawnResult(){
-        return $this->persistence->incr(self::$keyPrefixResultsId."incrIdentifier");
+        return "id_".$this->persistence->incr(self::$keyPrefixResultsId);
         
     }   
     
