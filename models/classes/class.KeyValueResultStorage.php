@@ -61,7 +61,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
 
     private function getPersistence()
     {
-        $persistence = common_persistence_KeyValuePersistence::getPersistence('keyValueResult');
+        $persistence = common_persistence_AdvKeyValuePersistence::getPersistence('keyValueResult');
         // check that persistence is a correct Key VAlue persistence
         return $persistence;
     }
