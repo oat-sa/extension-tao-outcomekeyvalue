@@ -174,12 +174,23 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
      */
     public function getVariables($callId)
     {
-        return $this->persistence->hGetAll(self::$keyPrefixCallId . $callId);
+        $variables = $this->persistence->hGetAll(self::$keyPrefixCallId . $callId);
+
+        foreach ($variables as $variableIdentifier=>$variableObservations){
+            $observations = json_decode($variableObservations);
+            foreach ($observations as $key=>$observation) {
+                $observation->variable = unserialize($observation->variable);
+            }
+                
+            
+            $variables[$variableIdentifier] = $observations;
+        }
+        return $variables;
     }
 
     public function getVariable($callId, $variableIdentifier)
     {
-        return $this->persistence->hGet(self::$keyPrefixCallId . $callId, $variableIdentifier);
+        return json_decode($this->persistence->hGet(self::$keyPrefixCallId . $callId, $variableIdentifier));
     }
 
     public function getTestTaker($deliveryResultIdentifier)
