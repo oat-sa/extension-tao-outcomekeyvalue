@@ -10,10 +10,14 @@ $taopath = dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'tao'.DIRECTORY_SEPARA
 	
 return array(
 	'name' => 'taoAltResultStorage',
+    'label' => 'Result storage key-value implementation',
 	'description' => 'Implements Alternative Result storage results interface using persistencies',
 	'version' => '1.0',
+    'license' => 'GPL-2.0',
 	'author' => 'Open Assessment Technologies',
-	'dependencies' => array('taoResultServer'),
+	'requires' => array(
+        'taoResultServer' => '2.6'
+	),
 	'models' => array(
 		'http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#'
         ),
