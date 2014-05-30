@@ -1,4 +1,8 @@
 /* auto generated content */
 /* lang: en-US */
-var langCode = 'en-US';
-var i18n_tr = [];
+define(function(){
+ return {
+   langCode : 'en-US',
+   i18n_tr : {"Group test takers according to global features and classifications.":"Group test-takers according to global features and classifications.","Manage test takers":"Manage test-takers","Record and manage test takers.":"Record and manage test-takers."}
+ };
+});
