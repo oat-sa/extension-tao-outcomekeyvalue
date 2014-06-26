@@ -168,9 +168,34 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         $this->storeVariableKeyValue($callIdItem, $itemVariable->getIdentifier(), $data);
     }
 
-    /**
-     * *
-     * o(1)
+ /**
+     * @param callId an item execution identifier
+     * @return array keys as variableIdentifier , values is an array of observations , 
+     * each observation is an object with deliveryResultIdentifier, test, taoResultServer_models_classes_Variable variable, callIdTest
+     * Array
+    (
+    [LtiOutcome] => Array
+        (
+            [0] => stdClass Object
+                (
+                    [deliveryResultIdentifier] => con-777:::rlid-777:::777777
+                    [test] => http://tao26/tao26.rdf#i1402389674744647
+                    [variable] => taoResultServer_models_classes_OutcomeVariable Object
+                        (
+                            [normalMaximum] => 
+                            [normalMinimum] => 
+                            [value] => MC41
+                            [identifier] => LtiOutcome
+                            [cardinality] => single
+                            [baseType] => float
+                            [epoch] => 0.10037600 1402390997
+                        )
+                    [callIdTest] => http://tao26/tao26.rdf#i14023907995907103
+                )
+
+        )
+
+    )
      */
     public function getVariables($callId)
     {
@@ -204,15 +229,19 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     }
 
     /**
-     * o(n) do not use real time
+     * @return array the list of item executions ids (across all results)
+     * o(n) do not use real time (postprocessing)
      */
+
     public function getAllCallIds()
     {
         $keys = $this->persistence->keys(self::$keyPrefixCallId . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixCallId);
         return $keys;
     }
-
+    /**
+     * @return array each element is a two fields array deliveryResultIdentifier, testTakerIdentifier
+     */
     public function getAllTestTakerIds()
     {
         $deliveryResults = array();
@@ -223,7 +252,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         }
         return $deliveryResults;
     }
-
+    /**
+     * @return array each element is a two fields array deliveryResultIdentifier, deliveryIdentifier
+     */
     public function getAllDeliveryIds()
     {
         $deliveryResults = array();
