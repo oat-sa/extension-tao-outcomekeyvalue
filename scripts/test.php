@@ -6,7 +6,7 @@ $rs = new taoResultServer_models_classes_ResultServerStateFull();
 $rs->initResultServer("http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#KeyValueResultStorage");
 //optional control on Ids
 $id = $rs->spawnResult("myCoolId");
-$rs->storeRelatedTestTaker("Jerome the bug guy");
+$rs->storeRelatedTestTaker("Jerome the big guy");
 $rs->storeRelatedDelivery("Jerome's super delivery");
 
 
@@ -24,8 +24,7 @@ $rs->storeItemVariable("sometest identifier", "someidentifier", $itemVariable, $
 //and youn want to do this 
 
 $variables = $rs->getVariables($callIdItem);
-print_r($variables);
-echo __LINE__;
+
 
 $variable = $rs->getVariable($callIdItem,"unittest_identifier");
 print_r($variable);
