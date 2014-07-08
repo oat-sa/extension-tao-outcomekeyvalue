@@ -215,7 +215,13 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
 
     public function getVariable($callId, $variableIdentifier)
     {
-        return json_decode($this->persistence->hGet(self::$keyPrefixCallId . $callId, $variableIdentifier));
+        $observations = json_decode($this->persistence->hGet(self::$keyPrefixCallId . $callId, $variableIdentifier));
+        foreach ($observations as $key => $observation) {
+            $observation->variable = unserialize($observation->variable);
+            $observations[$key] = $observation;
+        }
+        return  $observations;   
+        
     }
 
     public function getTestTaker($deliveryResultIdentifier)
