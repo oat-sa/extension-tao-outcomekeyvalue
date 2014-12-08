@@ -34,7 +34,7 @@
  * }
  */
 class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_models_classes_GenerisService
-    implements taoResultServer_models_classes_WritableResultStorage, taoResultServer_models_classes_ReadableResultStorage
+    implements taoResultServer_models_classes_WritableResultStorage, \oat\taoResultServer\models\classes\ResultManagement
 {
     const KEY_NAMESPACE = "taoAltResultStorage"; 
 
@@ -125,8 +125,12 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         $data = array(
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "test" => $test,
+            "item" => null,
             "variable" => serialize($testVariable),
-            "callIdTest" => $callIdTest
+            "callIdItem" => null,
+            "uri" => $deliveryResultIdentifier.$callIdTest,
+            "callIdTest" => $callIdTest,
+            "class" => get_class($testVariable)
         );
         $this->storeVariableKeyValue($callIdTest, $testVariable->getIdentifier(), $data);
     }
@@ -163,7 +167,10 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
             "test" => $test,
             "item" => $item,
             "variable" => serialize($itemVariable),
-            "callIdItem" => $callIdItem
+            "callIdItem" => $callIdItem,
+            "callIdTest" => null,
+            "uri" => $deliveryResultIdentifier.$callIdItem,
+            "class" => get_class($itemVariable)
         );
         $this->storeVariableKeyValue($callIdItem, $itemVariable->getIdentifier(), $data);
     }
@@ -200,16 +207,16 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     public function getVariables($callId)
     {
         $variables = $this->persistence->hGetAll(self::$keyPrefixCallId . $callId);
-
         foreach ($variables as $variableIdentifier=>$variableObservations){
             $observations = json_decode($variableObservations);
             foreach ($observations as $key=>$observation) {
                 $observation->variable = unserialize($observation->variable);
             }
-                
-            
+
+
             $variables[$variableIdentifier] = $observations;
         }
+//        common_Logger::w('test : '.print_r($variables,true));
         return $variables;
     }
 
@@ -226,10 +233,22 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
 
     public function getTestTaker($deliveryResultIdentifier)
     {
-        return $this->persistence->hGetAll(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
+        $testTaker = $this->getTestTakerArray($deliveryResultIdentifier);
+        return $testTaker['testTakerIdentifier'];
     }
 
     public function getDelivery($deliveryResultIdentifier)
+    {
+        $delivery = $this->getDeliveryArray($deliveryResultIdentifier);
+        return $delivery['deliveryIdentifier'];
+    }
+
+    public function getTestTakerArray($deliveryResultIdentifier)
+    {
+        return $this->persistence->hGetAll(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
+    }
+
+    public function getDeliveryArray($deliveryResultIdentifier)
     {
         return $this->persistence->hGetAll(self::$keyPrefixDelivery . $deliveryResultIdentifier);
     }
@@ -254,7 +273,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         $keys = $this->persistence->keys(self::$keyPrefixTestTaker . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixTestTaker);
         foreach ($keys as $key) {
-            $deliveryResults[$key] = $this->getTestTaker($key);
+            $deliveryResults[$key] = $this->getTestTakerArray($key);
         }
         return $deliveryResults;
     }
@@ -267,7 +286,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         $keys = $this->persistence->keys(self::$keyPrefixDelivery . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery);
         foreach ($keys as $key) {
-            $deliveryResults[$key] = $this->getDelivery($key);
+            $deliveryResults[$key] = $this->getDeliveryArray($key);
         }
         return $deliveryResults;
     }
@@ -278,5 +297,118 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     private function subStrPrefix(&$value, $key, $prefix)
     {
         $value = str_replace($prefix, '', $value);
+    }
+
+    /**
+     * Get only one property from a variable
+     * @param string $variableId on which we want the property
+     * @param string $property to retrieve
+     * @return int|string the property retrieved
+     */
+    public function getVariableProperty($variableId, $property)
+    {
+        $variableIds = explode('http://',$variableId);
+        $variableId = "http://".$variableIds[2];
+        $response = json_decode($this->persistence->hGet(self::$keyPrefixCallId.$variableId, "RESPONSE"));
+        $variable = unserialize($response[0]->variable);
+
+        $getter = 'get'.ucfirst($property);
+        if(method_exists($variable, $getter)){
+            return $variable->$getter();
+        }
+        return '';
+    }
+
+    /**
+     * Get all the ids of the callItem for a specific delivery execution
+     * @param string $deliveryResultIdentifier The identifier of the delivery execution
+     * @return array the list of call item ids (across all results)
+     */
+    public function getRelatedItemCallIds($deliveryResultIdentifier)
+    {
+        $keys = $this->persistence->keys(self::$keyPrefixCallId . $deliveryResultIdentifier . '.*');
+        array_walk($keys, 'self::subStrPrefix', self::$keyPrefixCallId);
+        return $keys;
+    }
+
+    /**
+     * Get the result information (test taker, delivery, delivery execution) from filters
+     * @param array $columns list of columns on which to search : array('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject','http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery')
+     * @param array $filter list of value to search : array('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject' => array('test','myValue'))
+     * @param array $options params to restrict results such as order, order direction, offset and limit
+     * @return array test taker, delivery and delivery result that match the filter : array(array('deliveryResultIdentifier' => '123', 'testTakerIdentifier' => '456', 'deliveryIdentifier' => '789'))
+     */
+    public function getResultByColumn($columns, $filter, $options = array())
+    {
+        $testTakerSearch = false;
+        $deliverySearch = false;
+        if(array_key_exists('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject',$filter)){
+            $testTakerSearch = true;
+        }
+        if(array_key_exists('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery',$filter)){
+            $deliverySearch = true;
+        }
+
+        $returnValue = array();
+        $keys = $this->persistence->keys(self::$keyPrefixDelivery . '*');
+        array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery);
+        foreach ($keys as $key) {
+            $testTaker = $this->getTestTaker($key);
+            $delivery = $this->getDelivery($key);
+            if((!$testTakerSearch || in_array($testTaker,$filter['http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject']))
+            && (!$deliverySearch || in_array($delivery,$filter['http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery']))){
+                $returnValue[] = array(
+                    "deliveryResultIdentifier" => $key,
+                    "testTakerIdentifier" => $testTaker,
+                    "deliveryIdentifier" => $delivery
+                );
+            }
+        }
+        return $returnValue;
+    }
+
+    /**
+     * Count the number of result that match the filter
+     * @param array $columns list of columns on which to search : array('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject','http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery')
+     * @param array $filter list of value to search : array('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject' => array('test','myValue'))
+     * @return int the number of results that match filter
+     */
+    public function countResultByFilter($columns, $filter)
+    {
+        $testTakerSearch = false;
+        $deliverySearch = false;
+        if(array_key_exists('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject',$filter)){
+            $testTakerSearch = true;
+        }
+        if(array_key_exists('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery',$filter)){
+            $deliverySearch = true;
+        }
+
+
+        $count = 0;
+        $keys = $this->persistence->keys(self::$keyPrefixDelivery . '*');
+        array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery);
+        foreach ($keys as $key) {
+            $testTaker = $this->getTestTaker($key);
+            $delivery = $this->getDelivery($key);
+            if((!$testTakerSearch || in_array($testTaker,$filter['http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject']))
+                && (!$deliverySearch || in_array($delivery,$filter['http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery']))){
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+
+    /**
+     * Remove the result and all the related variables
+     * @param string $deliveryResultIdentifier The identifier of the delivery execution
+     * @return boolean if the deletion was successful or not
+     */
+    public function deleteResult($deliveryResultIdentifier)
+    {
+        $this->persistence->del(self::$keyPrefixCallId . $deliveryResultIdentifier);
+        $this->persistence->del(self::$keyPrefixDelivery . $deliveryResultIdentifier);
+        $this->persistence->del(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
     }
 }
