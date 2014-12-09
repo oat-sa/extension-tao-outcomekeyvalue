@@ -331,68 +331,34 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         return $keys;
     }
 
-    /**
-     * Get the result information (test taker, delivery, delivery execution) from filters
-     * @param array $columns list of columns on which to search : array('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject','http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery')
-     * @param array $filter list of value to search : array('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject' => array('test','myValue'))
-     * @param array $options params to restrict results such as order, order direction, offset and limit
-     * @return array test taker, delivery and delivery result that match the filter : array(array('deliveryResultIdentifier' => '123', 'testTakerIdentifier' => '456', 'deliveryIdentifier' => '789'))
-     */
-    public function getResultByColumn($columns, $filter, $options = array())
+
+    public function getResultByDelivery($delivery, $options = array())
     {
-        $testTakerSearch = false;
-        $deliverySearch = false;
-        if(array_key_exists('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject',$filter)){
-            $testTakerSearch = true;
-        }
-        if(array_key_exists('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery',$filter)){
-            $deliverySearch = true;
-        }
 
         $returnValue = array();
         $keys = $this->persistence->keys(self::$keyPrefixDelivery . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery);
         foreach ($keys as $key) {
-            $testTaker = $this->getTestTaker($key);
-            $delivery = $this->getDelivery($key);
-            if((!$testTakerSearch || in_array($testTaker,$filter['http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject']))
-            && (!$deliverySearch || in_array($delivery,$filter['http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery']))){
+            $deliveryExecution = $this->getDelivery($key);
+            if(empty($delivery) || in_array($deliveryExecution,$delivery)){
                 $returnValue[] = array(
                     "deliveryResultIdentifier" => $key,
-                    "testTakerIdentifier" => $testTaker,
-                    "deliveryIdentifier" => $delivery
+                    "testTakerIdentifier" => $this->getTestTaker($key),
+                    "deliveryIdentifier" => $deliveryExecution
                 );
             }
         }
         return $returnValue;
     }
 
-    /**
-     * Count the number of result that match the filter
-     * @param array $columns list of columns on which to search : array('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject','http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery')
-     * @param array $filter list of value to search : array('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject' => array('test','myValue'))
-     * @return int the number of results that match filter
-     */
-    public function countResultByFilter($columns, $filter)
+    public function countResultByDelivery($delivery)
     {
-        $testTakerSearch = false;
-        $deliverySearch = false;
-        if(array_key_exists('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject',$filter)){
-            $testTakerSearch = true;
-        }
-        if(array_key_exists('http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery',$filter)){
-            $deliverySearch = true;
-        }
-
-
         $count = 0;
         $keys = $this->persistence->keys(self::$keyPrefixDelivery . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery);
         foreach ($keys as $key) {
-            $testTaker = $this->getTestTaker($key);
-            $delivery = $this->getDelivery($key);
-            if((!$testTakerSearch || in_array($testTaker,$filter['http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfSubject']))
-                && (!$deliverySearch || in_array($delivery,$filter['http://www.tao.lu/Ontologies/TAOResult.rdf#resultOfDelivery']))){
+            $deliveryExecution = $this->getDelivery($key);
+            if(empty($delivery) || in_array($deliveryExecution,$delivery)){
                 $count++;
             }
         }
