@@ -331,6 +331,13 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         return $keys;
     }
 
+    public function getRelatedTestCallIds($deliveryResultIdentifier)
+    {
+        $keys = $this->persistence->keys(self::$keyPrefixCallId . $deliveryResultIdentifier);
+        array_walk($keys, 'self::subStrPrefix', self::$keyPrefixCallId);
+        return $keys;
+    }
+
 
     public function getResultByDelivery($delivery, $options = array())
     {
