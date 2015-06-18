@@ -12,11 +12,11 @@ return array(
 	'name' => 'taoAltResultStorage',
     'label' => 'Result storage key-value implementation',
 	'description' => 'Implements Alternative Result storage results interface using persistencies',
-	'version' => '1.0',
+	'version' => '1.0.1',
     'license' => 'GPL-2.0',
 	'author' => 'Open Assessment Technologies',
 	'requires' => array(
-        'taoResultServer' => '2.6'
+        'taoResultServer' => '>=2.6'
 	),
 	'models' => array(
 		'http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#'
@@ -24,10 +24,7 @@ return array(
 	'install' => array('rdf' => array(
 			dirname(__FILE__). '/models/ontology/taoAltResultStorage.rdf'
 		)),
-	'classLoaderPackages' => array( 
-		dirname(__FILE__).'/actions/',
-		dirname(__FILE__).'/helpers/'
-	 ),
+	'update' => 'oat\\taoAltResultStorage\\scripts\\update\\Updater',
  	'constants' => array(
 	 	# actions directory
 		"DIR_ACTIONS"			=> $extpath."actions".DIRECTORY_SEPARATOR,
