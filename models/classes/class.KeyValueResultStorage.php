@@ -380,8 +380,13 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
      */
     public function deleteResult($deliveryResultIdentifier)
     {
-        $this->persistence->del(self::$keyPrefixCallId . $deliveryResultIdentifier);
-        $this->persistence->del(self::$keyPrefixDelivery . $deliveryResultIdentifier);
-        $this->persistence->del(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
+        $return = true;
+        $keys = $this->persistence->keys(self::$keyPrefixCallId . $deliveryResultIdentifier.'*');
+        foreach ($keys as $key) {
+            $return = $return && $this->persistence->del($key);
+        }
+        $return = $return && $this->persistence->del(self::$keyPrefixDelivery . $deliveryResultIdentifier);
+        $return = $return && $this->persistence->del(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
+        return $return;
     }
 }
