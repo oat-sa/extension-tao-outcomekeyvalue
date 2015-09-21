@@ -47,9 +47,6 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     
     static $keyPrefixResultsId='taoAltResultStorage:id';
     
-    //prefix for results identifier (<>redis keys)
-    static $valPrefixResultsId = 'resultsId_';
-    
     private $persistence;
 
     public function __construct()
@@ -320,9 +317,10 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     }
 
     /**
-     * Get all the ids of the callItem for a specific delivery execution
-     * @param string $deliveryResultIdentifier The identifier of the delivery execution
-     * @return array the list of call item ids (across all results)
+     * @todo Only works for QTI Tests, fix this in a more generic way
+     * 
+     * (non-PHPdoc)
+     * @see \oat\taoResultServer\models\classes\ResultManagement::getRelatedItemCallIds()
      */
     public function getRelatedItemCallIds($deliveryResultIdentifier)
     {
@@ -331,6 +329,12 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         return $keys;
     }
 
+    /**
+     * @todo Only works for QTI Tests, fix this in a more generic way
+     * 
+     * (non-PHPdoc)
+     * @see \oat\taoResultServer\models\classes\ResultManagement::getRelatedTestCallIds()
+     */
     public function getRelatedTestCallIds($deliveryResultIdentifier)
     {
         $keys = $this->persistence->keys(self::$keyPrefixCallId . $deliveryResultIdentifier);
@@ -381,9 +385,11 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     public function deleteResult($deliveryResultIdentifier)
     {
         $return = true;
-        $keys = $this->persistence->keys(self::$keyPrefixCallId . $deliveryResultIdentifier.'*');
-        foreach ($keys as $key) {
-            $return = $return && $this->persistence->del($key);
+        foreach ($this->getRelatedTestCallIds($deliveryResultIdentifier) as $key) {
+            $return = $return && $this->persistence->del(self::$keyPrefixCallId . $key);
+        }
+        foreach ($this->getRelatedItemCallIds($deliveryResultIdentifier) as $key) {
+            $return = $return && $this->persistence->del(self::$keyPrefixCallId . $key);
         }
         $return = $return && $this->persistence->del(self::$keyPrefixDelivery . $deliveryResultIdentifier);
         $return = $return && $this->persistence->del(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
