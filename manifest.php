@@ -12,11 +12,11 @@ return array(
 	'name' => 'taoAltResultStorage',
     'label' => 'Result storage key-value implementation',
 	'description' => 'Implements Alternative Result storage results interface using persistencies',
-	'version' => '1.0.1',
+	'version' => '2.0.0',
     'license' => 'GPL-2.0',
 	'author' => 'Open Assessment Technologies',
 	'requires' => array(
-        'taoResultServer' => '>=2.6'
+        'taoResultServer' => '>=3.0'
 	),
 	'models' => array(
 		'http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#'

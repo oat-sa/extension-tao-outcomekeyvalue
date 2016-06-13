@@ -27,8 +27,6 @@ namespace oat\taoAltResultStorage\scripts\update;
 class Updater extends \common_ext_ExtensionUpdater {
 
 	/**
-     * 
-     * @param string $currentVersion
      * @return string $versionUpdatedTo
      */
     public function update($initialVersion) {
@@ -36,8 +34,9 @@ class Updater extends \common_ext_ExtensionUpdater {
         $currentVersion = $initialVersion;
         
         if ($currentVersion == '1.0') {
-        	$currentVersion = '1.0.1';
+        	$this->setVersion('1.0.1');
         }
-        return $currentVersion;
+
+        $this->skip('1.0.1', '2.0.0');
     }
 }

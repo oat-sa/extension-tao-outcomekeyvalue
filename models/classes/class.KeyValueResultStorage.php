@@ -44,7 +44,8 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     static $keyPrefixCallId = 'taoAltResultStorage:callIdVariables'; // keyPrefixCallId.$callId --> variables
     static $keyPrefixTestTaker = 'taoAltResultStorage:resultsTestTaker'; // keyPrefixTestTaker.$deliveryResultIdentifier -->testtaker
     static $keyPrefixDelivery = 'taoAltResultStorage:resultsDelivery'; // keyPrefixDelivery.$deliveryResultIdentifier -->testtaker
-    
+    static $keyPrefixDeliveryExecution = 'taoAltResultStorage:resultsExecutionId'; // keyPrefixExecution.$deliveryResultIdentifier -->testtaker
+
     static $keyPrefixResultsId='taoAltResultStorage:id';
     
     private $persistence;
@@ -154,6 +155,14 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         ));
     }
 
+    public function storeRelatedDeliveryExecution($deliveryResultIdentifier, $executionIdentifier)
+    {
+        $this->persistence->hmSet(self::$keyPrefixDeliveryExecution . $deliveryResultIdentifier, array(
+            "deliveryResultIdentifier" => $deliveryResultIdentifier,
+            "executionIdentifier" => $executionIdentifier
+        ));
+    }
+
     public function storeItemVariable($deliveryResultIdentifier, $test, $item, taoResultServer_models_classes_Variable $itemVariable, $callIdItem)
     {
         if (! ($itemVariable->isSetEpoch())) {
@@ -240,6 +249,12 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         return $delivery['deliveryIdentifier'];
     }
 
+    public function getDeliveryExecution($deliveryResultIdentifier)
+    {
+        $delivery = $this->getDeliveryExecutionArray($deliveryResultIdentifier);
+        return $delivery['executionIdentifier'];
+    }
+
     public function getTestTakerArray($deliveryResultIdentifier)
     {
         return $this->persistence->hGetAll(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
@@ -248,6 +263,11 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
     public function getDeliveryArray($deliveryResultIdentifier)
     {
         return $this->persistence->hGetAll(self::$keyPrefixDelivery . $deliveryResultIdentifier);
+    }
+
+    public function getDeliveryExecutionArray($deliveryResultIdentifier)
+    {
+        return $this->persistence->hGetAll(self::$keyPrefixDeliveryExecution . $deliveryResultIdentifier);
     }
 
     /**
@@ -350,12 +370,13 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         $keys = $this->persistence->keys(self::$keyPrefixDelivery . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery);
         foreach ($keys as $key) {
-            $deliveryExecution = $this->getDelivery($key);
-            if(empty($delivery) || in_array($deliveryExecution,$delivery)){
+            $deliveryResultId = $this->getDelivery($key);
+            if(empty($delivery) || in_array($deliveryResultId, $delivery)){
                 $returnValue[] = array(
                     "deliveryResultIdentifier" => $key,
                     "testTakerIdentifier" => $this->getTestTaker($key),
-                    "deliveryIdentifier" => $deliveryExecution
+                    "deliveryIdentifier" => $deliveryResultId,
+                    "deliveryExecutionIdentifier" => $this->getDeliveryExecution($key)
                 );
             }
         }
@@ -392,6 +413,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
             $return = $return && $this->persistence->del(self::$keyPrefixCallId . $key);
         }
         $return = $return && $this->persistence->del(self::$keyPrefixDelivery . $deliveryResultIdentifier);
+        $return = $return && $this->persistence->del(self::$keyPrefixDeliveryExecution . $deliveryResultIdentifier);
         $return = $return && $this->persistence->del(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
         return $return;
     }
