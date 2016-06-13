@@ -16,7 +16,7 @@ return array(
     'license' => 'GPL-2.0',
 	'author' => 'Open Assessment Technologies',
 	'requires' => array(
-        'taoResultServer' => '>=2.6'
+        'taoResultServer' => '>=3.0'
 	),
 	'models' => array(
 		'http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#'
