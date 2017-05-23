@@ -21,6 +21,8 @@
  */
 require_once dirname(__FILE__) . '/../includes/raw_start.php';
 
+use oat\oatbox\service\ServiceManager;
+
 //output regarding the context
 function out($msg = ''){
 	print $msg;
@@ -31,12 +33,12 @@ out("Running ".basename(__FILE__));
 
 $prefix = 'callIdVariables';
 
-$keyValueStorage = new taoAltResultStorage_models_classes_KeyValueResultStorage();
+$keyValueStorage = ServiceManager::getServiceManager()->get(taoAltResultStorage_models_classes_KeyValueResultStorage::SERVICE_ID);
+$persistenceId = $keyValueStorage->hasOption(taoAltResultStorage_models_classes_KeyValueResultStorage::OPTION_PERSISTENCE) ?
+    $this->getOption(taoAltResultStorage_models_classes_KeyValueResultStorage::OPTION_PERSISTENCE) : 'keyValueResult';
 
-//retrieve all keys 
-$keys = common_persistence_KeyValuePersistence::getPersistence('keyValueResult')->keys($prefix.'*');
-
-
+//retrieve all keys
+$keys = common_persistence_KeyValuePersistence::getPersistence($persistenceId)->keys($prefix.'*');
 
 foreach ($keys as $callId) {
    $callId = str_replace($prefix,'',$callId);
@@ -48,10 +50,10 @@ foreach ($keys as $callId) {
        out("* payload size:\t".strlen($data));
        //out("* payload :\t". $data);
    }
-   //print_r(common_persistence_KeyValuePersistence::getPersistence('keyValueResult')->get($callId));
+   //print_r(common_persistence_KeyValuePersistence::getPersistence($persistenceId)->get($callId));
 }
 $prefix = 'resultsTestTaker';
-$keys = common_persistence_KeyValuePersistence::getPersistence('keyValueResult')->keys($prefix.'*');
+$keys = common_persistence_KeyValuePersistence::getPersistence($persistenceId)->keys($prefix.'*');
 foreach ($keys as $key) {
    $key = str_replace($prefix,'',$key);
    out("----- Test Taker -----");
@@ -60,7 +62,7 @@ foreach ($keys as $key) {
    out("* testTakerIdentifier:\t".$testTaker["testTakerIdentifier"]);
 }
 $prefix = 'resultsDelivery';
-$keys = common_persistence_KeyValuePersistence::getPersistence('keyValueResult')->keys($prefix.'*');
+$keys = common_persistence_KeyValuePersistence::getPersistence($persistenceId)->keys($prefix.'*');
 foreach ($keys as $key) {
    $key = str_replace($prefix,'',$key);
    out("----- Delivery -----");

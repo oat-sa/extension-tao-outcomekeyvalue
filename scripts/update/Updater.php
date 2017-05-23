@@ -19,7 +19,7 @@
  *
  */
 namespace oat\taoAltResultStorage\scripts\update;
-
+use \taoAltResultStorage_models_classes_KeyValueResultStorage as KeyValueResultStorage;
 /**
  * 
  * @author Joel Bout <joel@taotesting.com>
@@ -35,7 +35,10 @@ class Updater extends \common_ext_ExtensionUpdater {
         
 
         $this->skip('1.0','2.0.0');
-        
-        return null;
+
+        if ($this->isVersion('2.0.0')) {
+            $this->getServiceManager()->register(KeyValueResultStorage::SERVICE_ID, new KeyValueResultStorage([]));
+            $this->setVersion('2.1.0');
+        }
     }
 }

@@ -18,6 +18,8 @@
  *
  */
 
+use oat\oatbox\service\ConfigurableService;
+
 /**
  * Implements tao results storage using the configured persistency "taoAltResultStorage"
  *
@@ -33,13 +35,16 @@
  * ...
  * }
  */
-class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_models_classes_GenerisService
+class taoAltResultStorage_models_classes_KeyValueResultStorage extends ConfigurableService
     implements taoResultServer_models_classes_WritableResultStorage, \oat\taoResultServer\models\classes\ResultManagement
 {
-    const KEY_NAMESPACE = "taoAltResultStorage"; 
+    const KEY_NAMESPACE = "taoAltResultStorage";
 
+    const SERVICE_ID = 'taoAltResultStorage/KeyValueResultStorage';
 
-    
+    /** result storage persistence identifier */
+    const OPTION_PERSISTENCE = 'persistence_id';
+
     // prefixes used for keys
     static $keyPrefixCallId = 'taoAltResultStorage:callIdVariables'; // keyPrefixCallId.$callId --> variables
     static $keyPrefixTestTaker = 'taoAltResultStorage:resultsTestTaker'; // keyPrefixTestTaker.$deliveryResultIdentifier -->testtaker
@@ -58,9 +63,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
 
     private function getPersistence()
     {
-        $persistence = common_persistence_AdvKeyValuePersistence::getPersistence('keyValueResult');
-        // check that persistence is a correct Key VAlue persistence
-        return $persistence;
+        $persistenceId = $this->hasOption(self::OPTION_PERSISTENCE) ?
+            $this->getOption(self::OPTION_PERSISTENCE) : 'keyValueResult';
+        return \common_persistence_AdvKeyValuePersistence::getPersistence($persistenceId);
     }
 
     /**
