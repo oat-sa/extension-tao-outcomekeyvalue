@@ -34,7 +34,7 @@
  * }
  */
 class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_models_classes_GenerisService
-    implements taoResultServer_models_classes_WritableResultStorage, \oat\taoResultServer\models\classes\ResultManagement
+    implements taoResultServer_models_classes_ReadableResultStorage, taoResultServer_models_classes_WritableResultStorage, \oat\taoResultServer\models\classes\ResultManagement
 {
     const KEY_NAMESPACE = "taoAltResultStorage"; 
 
@@ -215,6 +215,22 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_model
         }
 //        common_Logger::w('test : '.print_r($variables,true));
         return $variables;
+    }
+
+    /**
+     * @param $deliveryResultIdentifier
+     * @return array
+     */
+    public function getDeliveryVariables($deliveryResultIdentifier)
+    {
+        $keys = $this->persistence->keys(self::$keyPrefixCallId . $deliveryResultIdentifier . '.*');
+        $result = [];
+        foreach ($keys as $key) {
+            foreach ($this->getVariables(str_replace(self::$keyPrefixCallId, '', $key)) as $varId => $variable) {
+                $result[$variable[0]->uri.$varId] = $variable;
+            }
+        }
+        return $result;
     }
 
     public function getVariable($callId, $variableIdentifier)
