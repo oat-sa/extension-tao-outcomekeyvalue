@@ -34,7 +34,7 @@
  * }
  */
 class taoAltResultStorage_models_classes_KeyValueResultStorage extends tao_models_classes_GenerisService
-    implements taoResultServer_models_classes_ReadableResultStorage, taoResultServer_models_classes_WritableResultStorage, \oat\taoResultServer\models\classes\ResultManagement
+    implements taoResultServer_models_classes_WritableResultStorage, \oat\taoResultServer\models\classes\ResultManagement
 {
     const KEY_NAMESPACE = "taoAltResultStorage"; 
 
