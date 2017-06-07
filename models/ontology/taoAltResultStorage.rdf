@@ -13,7 +13,7 @@
    <rdf:Description rdf:about="http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#KeyValueResultStorageModel">
 	<rdfs:label xml:lang="en-US">KeyValueResultStorage(configure persistency)</rdfs:label>
 	<rdfs:comment xml:lang="en-US">KeyValueResultStorage (configure persistency)</rdfs:comment>
-	<resultserver:implementation><![CDATA[taoAltResultStorage_models_classes_KeyValueResultStorage]]></resultserver:implementation>
+	<resultserver:implementation><![CDATA[taoAltResultStorage/KeyValueResultStorage]]></resultserver:implementation>
 	<rdf:type rdf:resource="http://www.tao.lu/Ontologies/TAOResultServer.rdf#ResultServerModel"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#KeyValueResultStorage">
