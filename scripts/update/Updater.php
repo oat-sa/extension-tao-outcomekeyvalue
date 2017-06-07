@@ -40,7 +40,9 @@ class Updater extends \common_ext_ExtensionUpdater {
 
         if ($this->isVersion('2.1.0')) {
             OntologyUpdater::syncModels();
-            $this->getServiceManager()->register(KeyValueResultStorage::SERVICE_ID, new KeyValueResultStorage([]));
+            $this->getServiceManager()->register(KeyValueResultStorage::SERVICE_ID, new KeyValueResultStorage([
+                KeyValueResultStorage::OPTION_PERSISTENCE => 'keyValueResult'
+            ]));
             $this->setVersion('2.2.0');
         }
     }
