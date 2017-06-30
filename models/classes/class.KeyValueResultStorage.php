@@ -19,6 +19,7 @@
  */
 
 use oat\oatbox\service\ConfigurableService;
+use oat\taoResultServer\models\classes\ResultManagement;
 
 /**
  * Implements tao results storage using the configured persistency "taoAltResultStorage"
@@ -36,7 +37,7 @@ use oat\oatbox\service\ConfigurableService;
  * }
  */
 class taoAltResultStorage_models_classes_KeyValueResultStorage extends ConfigurableService
-    implements taoResultServer_models_classes_WritableResultStorage, \oat\taoResultServer\models\classes\ResultManagement
+    implements taoResultServer_models_classes_WritableResultStorage, ResultManagement
 {
     const KEY_NAMESPACE = "taoAltResultStorage";
 
@@ -51,21 +52,26 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     static $keyPrefixDelivery = 'taoAltResultStorage:resultsDelivery'; // keyPrefixDelivery.$deliveryResultIdentifier -->testtaker
     
     static $keyPrefixResultsId='taoAltResultStorage:id';
-    
+
+    /**
+     * @var common_persistence_AdvKeyValuePersistence
+     */
     private $persistence;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->persistence = $this->getPersistence();
-        common_ext_ExtensionsManager::singleton()->getExtensionById("taoAltResultStorage");
-    }
-
+    /**
+     * Initialise the persistence and return it
+     *
+     * @return common_persistence_AdvKeyValuePersistence
+     */
     private function getPersistence()
     {
-        $persistenceId = $this->hasOption(self::OPTION_PERSISTENCE) ?
-            $this->getOption(self::OPTION_PERSISTENCE) : 'keyValueResult';
-        return \common_persistence_AdvKeyValuePersistence::getPersistence($persistenceId);
+        if (is_null($this->persistence)) {
+            $persistenceId = $this->hasOption(self::OPTION_PERSISTENCE) ?
+                $this->getOption(self::OPTION_PERSISTENCE) : 'keyValueResult';
+            $perisistenceManager = $this->getServiceLocator()->get(common_persistence_Manager::SERVICE_ID);
+            $this->persistence = $perisistenceManager->getPersistenceById($persistenceId);
+        }
+        return $this->persistence;
     }
 
     /**
@@ -82,22 +88,22 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
          * seems to be the same complexity, worse if not yet value set for that key to be benchmarked against the general case only
          */
         // Time complexity: O(1)
-        $observed = $this->persistence->hExists($callId, $variableIdentifier);
+        $observed = $this->getPersistence()->hExists($callId, $variableIdentifier);
         if (! ($observed)) {
             // Time complexity: O(1)
-            $this->persistence->hSet($callId, $variableIdentifier, json_encode(array(
+            $this->getPersistence()->hSet($callId, $variableIdentifier, json_encode(array(
                 $data
             )));
         } else {
             // Time complexity: O(1)
-            $variableObservations = json_decode($this->persistence->hGet($callId, $variableIdentifier));
+            $variableObservations = json_decode($this->getPersistence()->hGet($callId, $variableIdentifier));
             // if (is_array($variableObservations)) {
             $variableObservations[] = $data;
             /*
              * } else { $variableObservations = array($data); }
              */
             // Time complexity: O(1)
-            $this->persistence->hSet($callId, $variableIdentifier, json_encode($variableObservations));
+            $this->getPersistence()->hSet($callId, $variableIdentifier, json_encode($variableObservations));
         }
     }
 
@@ -105,7 +111,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      * Ids must be delegated on key value persistency as we may want to load balance and keep unique identifier
      */
     public function spawnResult(){
-        return "id_".$this->persistence->incr(self::$keyPrefixResultsId);
+        return "id_".$this->getPersistence()->incr(self::$keyPrefixResultsId);
         
     }   
     
@@ -145,7 +151,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     public function storeRelatedTestTaker($deliveryResultIdentifier, $testTakerIdentifier)
     {
-        $this->persistence->hmSet(self::$keyPrefixTestTaker . $deliveryResultIdentifier, array(
+        $this->getPersistence()->hmSet(self::$keyPrefixTestTaker . $deliveryResultIdentifier, array(
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "testTakerIdentifier" => $testTakerIdentifier
         ));
@@ -153,7 +159,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     public function storeRelatedDelivery($deliveryResultIdentifier, $deliveryIdentifier)
     {
-        $this->persistence->hmSet(self::$keyPrefixDelivery . $deliveryResultIdentifier, array(
+        $this->getPersistence()->hmSet(self::$keyPrefixDelivery . $deliveryResultIdentifier, array(
             "deliveryResultIdentifier" => $deliveryResultIdentifier,
             "deliveryIdentifier" => $deliveryIdentifier
         ));
@@ -208,7 +214,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function getVariables($callId)
     {
-        $variables = $this->persistence->hGetAll(self::$keyPrefixCallId . $callId);
+        $variables = $this->getPersistence()->hGetAll(self::$keyPrefixCallId . $callId);
         foreach ($variables as $variableIdentifier=>$variableObservations){
             $observations = json_decode($variableObservations);
             foreach ($observations as $key=>$observation) {
@@ -228,7 +234,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function getDeliveryVariables($deliveryResultIdentifier)
     {
-        $keys = $this->persistence->keys(self::$keyPrefixCallId . $deliveryResultIdentifier . '.*');
+        $keys = $this->getPersistence()->keys(self::$keyPrefixCallId . $deliveryResultIdentifier . '.*');
         $result = [];
         foreach ($keys as $key) {
             foreach ($this->getVariables(str_replace(self::$keyPrefixCallId, '', $key)) as $varId => $variable) {
@@ -240,7 +246,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     public function getVariable($callId, $variableIdentifier)
     {
-        $observations = json_decode($this->persistence->hGet(self::$keyPrefixCallId . $callId, $variableIdentifier));
+        $observations = json_decode($this->getPersistence()->hGet(self::$keyPrefixCallId . $callId, $variableIdentifier));
         foreach ($observations as $key => $observation) {
             $observation->variable = unserialize($observation->variable);
             $observations[$key] = $observation;
@@ -263,12 +269,12 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     public function getTestTakerArray($deliveryResultIdentifier)
     {
-        return $this->persistence->hGetAll(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
+        return $this->getPersistence()->hGetAll(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
     }
 
     public function getDeliveryArray($deliveryResultIdentifier)
     {
-        return $this->persistence->hGetAll(self::$keyPrefixDelivery . $deliveryResultIdentifier);
+        return $this->getPersistence()->hGetAll(self::$keyPrefixDelivery . $deliveryResultIdentifier);
     }
 
     /**
@@ -278,7 +284,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     public function getAllCallIds()
     {
-        $keys = $this->persistence->keys(self::$keyPrefixCallId . '*');
+        $keys = $this->getPersistence()->keys(self::$keyPrefixCallId . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixCallId);
         return $keys;
     }
@@ -288,7 +294,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     public function getAllTestTakerIds()
     {
         $deliveryResults = array();
-        $keys = $this->persistence->keys(self::$keyPrefixTestTaker . '*');
+        $keys = $this->getPersistence()->keys(self::$keyPrefixTestTaker . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixTestTaker);
         foreach ($keys as $key) {
             $deliveryResults[$key] = $this->getTestTakerArray($key);
@@ -301,7 +307,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     public function getAllDeliveryIds()
     {
         $deliveryResults = array();
-        $keys = $this->persistence->keys(self::$keyPrefixDelivery . '*');
+        $keys = $this->getPersistence()->keys(self::$keyPrefixDelivery . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery);
         foreach ($keys as $key) {
             $deliveryResults[$key] = $this->getDeliveryArray($key);
@@ -327,7 +333,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     {
         $variableIds = explode('http://',$variableId);
         $variableId = "http://".$variableIds[2];
-        $response = json_decode($this->persistence->hGet(self::$keyPrefixCallId.$variableId, "RESPONSE"));
+        $response = json_decode($this->getPersistence()->hGet(self::$keyPrefixCallId.$variableId, "RESPONSE"));
         $variable = unserialize($response[0]->variable);
 
         $getter = 'get'.ucfirst($property);
@@ -345,7 +351,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function getRelatedItemCallIds($deliveryResultIdentifier)
     {
-        $keys = $this->persistence->keys(self::$keyPrefixCallId . $deliveryResultIdentifier . '.*');
+        $keys = $this->getPersistence()->keys(self::$keyPrefixCallId . $deliveryResultIdentifier . '.*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixCallId);
         return $keys;
     }
@@ -358,7 +364,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function getRelatedTestCallIds($deliveryResultIdentifier)
     {
-        $keys = $this->persistence->keys(self::$keyPrefixCallId . $deliveryResultIdentifier);
+        $keys = $this->getPersistence()->keys(self::$keyPrefixCallId . $deliveryResultIdentifier);
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixCallId);
         return $keys;
     }
@@ -368,7 +374,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     {
 
         $returnValue = array();
-        $keys = $this->persistence->keys(self::$keyPrefixDelivery . '*');
+        $keys = $this->getPersistence()->keys(self::$keyPrefixDelivery . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery);
         foreach ($keys as $key) {
             $deliveryExecution = $this->getDelivery($key);
@@ -386,7 +392,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     public function countResultByDelivery($delivery)
     {
         $count = 0;
-        $keys = $this->persistence->keys(self::$keyPrefixDelivery . '*');
+        $keys = $this->getPersistence()->keys(self::$keyPrefixDelivery . '*');
         array_walk($keys, 'self::subStrPrefix', self::$keyPrefixDelivery);
         foreach ($keys as $key) {
             $deliveryExecution = $this->getDelivery($key);
@@ -407,13 +413,13 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     {
         $return = true;
         foreach ($this->getRelatedTestCallIds($deliveryResultIdentifier) as $key) {
-            $return = $return && $this->persistence->del(self::$keyPrefixCallId . $key);
+            $return = $return && $this->getPersistence()->del(self::$keyPrefixCallId . $key);
         }
         foreach ($this->getRelatedItemCallIds($deliveryResultIdentifier) as $key) {
-            $return = $return && $this->persistence->del(self::$keyPrefixCallId . $key);
+            $return = $return && $this->getPersistence()->del(self::$keyPrefixCallId . $key);
         }
-        $return = $return && $this->persistence->del(self::$keyPrefixDelivery . $deliveryResultIdentifier);
-        $return = $return && $this->persistence->del(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
+        $return = $return && $this->getPersistence()->del(self::$keyPrefixDelivery . $deliveryResultIdentifier);
+        $return = $return && $this->getPersistence()->del(self::$keyPrefixTestTaker . $deliveryResultIdentifier);
         return $return;
     }
 }
