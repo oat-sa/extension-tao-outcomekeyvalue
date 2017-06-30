@@ -34,8 +34,7 @@ out("Running ".basename(__FILE__));
 $prefix = 'callIdVariables';
 
 $keyValueStorage = ServiceManager::getServiceManager()->get(taoAltResultStorage_models_classes_KeyValueResultStorage::SERVICE_ID);
-$persistenceId = $keyValueStorage->hasOption(taoAltResultStorage_models_classes_KeyValueResultStorage::OPTION_PERSISTENCE) ?
-    $this->getOption(taoAltResultStorage_models_classes_KeyValueResultStorage::OPTION_PERSISTENCE) : 'keyValueResult';
+$persistenceId = $keyValueStorage->getOption(taoAltResultStorage_models_classes_KeyValueResultStorage::OPTION_PERSISTENCE);
 
 //retrieve all keys
 $keys = common_persistence_KeyValuePersistence::getPersistence($persistenceId)->keys($prefix.'*');
