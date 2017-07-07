@@ -20,6 +20,8 @@
  */
 namespace oat\taoAltResultStorage\scripts\update;
 
+use oat\tao\scripts\update\OntologyUpdater;
+use taoAltResultStorage_models_classes_KeyValueResultStorage as KeyValueResultStorage;
 /**
  * 
  * @author Joel Bout <joel@taotesting.com>
@@ -35,7 +37,13 @@ class Updater extends \common_ext_ExtensionUpdater {
         
 
         $this->skip('1.0','2.1.0');
-        
-        return null;
+
+        if ($this->isVersion('2.1.0')) {
+            OntologyUpdater::syncModels();
+            $this->getServiceManager()->register(KeyValueResultStorage::SERVICE_ID, new KeyValueResultStorage([
+                KeyValueResultStorage::OPTION_PERSISTENCE => 'keyValueResult'
+            ]));
+            $this->setVersion('2.2.0');
+        }
     }
 }
