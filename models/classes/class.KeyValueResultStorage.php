@@ -137,6 +137,14 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         );
         $this->storeVariableKeyValue($callIdTest, $testVariable->getIdentifier(), $data);
     }
+    
+    public function storeTestVariables($deliveryResultIdentifier, $test, array $testVariables, $callIdTest)
+    {
+        foreach ($testVariables as $testVariable) {
+            $this->storeTestVariable($deliveryResultIdentifier, $test, $testVariable, $callIdTest);
+        }
+    }
+    
     /*
      * retrieve specific parameters from the resultserver to configure the storage
      */
