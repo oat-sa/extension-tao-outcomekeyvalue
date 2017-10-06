@@ -177,6 +177,14 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         );
         $this->storeVariableKeyValue($callIdItem, $itemVariable->getIdentifier(), $data);
     }
+    
+    public function storeItemVariables($deliveryResultIdentifier, $test, $item, array $itemVariables, $callIdItem)
+    {
+        foreach ($itemVariables as $itemVariable)
+        {
+            $this->storeItemVariable($deliveryResultIdentifier, $test, $item, $itemVariable, $callIdItem);
+        }
+    }
 
  /**
      * @param callId an item execution identifier
