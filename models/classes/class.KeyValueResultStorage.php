@@ -137,6 +137,14 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         );
         $this->storeVariableKeyValue($callIdTest, $testVariable->getIdentifier(), $data);
     }
+    
+    public function storeTestVariables($deliveryResultIdentifier, $test, array $testVariables, $callIdTest)
+    {
+        foreach ($testVariables as $testVariable) {
+            $this->storeTestVariable($deliveryResultIdentifier, $test, $testVariable, $callIdTest);
+        }
+    }
+    
     /*
      * retrieve specific parameters from the resultserver to configure the storage
      */
@@ -176,6 +184,14 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             "class" => get_class($itemVariable)
         );
         $this->storeVariableKeyValue($callIdItem, $itemVariable->getIdentifier(), $data);
+    }
+    
+    public function storeItemVariables($deliveryResultIdentifier, $test, $item, array $itemVariables, $callIdItem)
+    {
+        foreach ($itemVariables as $itemVariable)
+        {
+            $this->storeItemVariable($deliveryResultIdentifier, $test, $item, $itemVariable, $callIdItem);
+        }
     }
 
  /**
