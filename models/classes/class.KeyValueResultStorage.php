@@ -14,11 +14,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2013 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2013-2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
 
 use oat\oatbox\service\ConfigurableService;
+use oat\taoAltResultStorage\models\Collection\VariableStorableCollection;
+use oat\taoAltResultStorage\models\Entity\ItemVariableStorable;
+use oat\taoAltResultStorage\models\Entity\TestVariableStorable;
+use oat\taoAltResultStorage\models\Entity\VariableStorable;
 use oat\taoResultServer\models\classes\ResultManagement;
 
 /**
@@ -71,9 +75,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     /**
      *
-     * @param type $callId            
-     * @param type $variableIdentifier            
-     * @param json $data
+     * @param string $callId
+     * @param string $variableIdentifier
+     * @param VariableStorable $data
      *            the actual variable-value object,
      */
     private function storeVariableKeyValue($callId, $variableIdentifier, $data)
@@ -125,24 +129,30 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         if (! ($testVariable->isSetEpoch())) {
             $testVariable->setEpoch(microtime());
         }
-        $data = array(
-            "deliveryResultIdentifier" => $deliveryResultIdentifier,
-            "test" => $test,
-            "item" => null,
-            "variable" => serialize($testVariable),
-            "callIdItem" => null,
-            "uri" => $deliveryResultIdentifier.$callIdTest,
-            "callIdTest" => $callIdTest,
-            "class" => get_class($testVariable)
-        );
-        $this->storeVariableKeyValue($callIdTest, $testVariable->getIdentifier(), $data);
+
+        $variable = new TestVariableStorable($deliveryResultIdentifier, $test, $testVariable, $callIdTest);
+
+        $this->storeVariableKeyValue($callIdTest, $variable->getIdentifier(), $variable);
     }
-    
+
+    /**
+     * @param $deliveryResultIdentifier
+     * @param $test
+     * @param array $testVariables
+     * @param $callIdTest
+     */
     public function storeTestVariables($deliveryResultIdentifier, $test, array $testVariables, $callIdTest)
     {
-        foreach ($testVariables as $testVariable) {
-            $this->storeTestVariable($deliveryResultIdentifier, $test, $testVariable, $callIdTest);
-        }
+        $variablesCollection = VariableStorableCollection::createTestVariableCollection(
+            $callIdTest,
+            $deliveryResultIdentifier,
+            $test,
+            $testVariables
+        );
+
+        $callId = self::PREFIX_CALL_ID . $variablesCollection->getIdentifier();
+
+        $this->getPersistence()->hmSet($callId, $variablesCollection->toStorableArray());
     }
     
     /*
@@ -173,25 +183,25 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         if (! ($itemVariable->isSetEpoch())) {
             $itemVariable->setEpoch(microtime());
         }
-        $data = array(
-            "deliveryResultIdentifier" => $deliveryResultIdentifier,
-            "test" => $test,
-            "item" => $item,
-            "variable" => serialize($itemVariable),
-            "callIdItem" => $callIdItem,
-            "callIdTest" => null,
-            "uri" => $deliveryResultIdentifier.$callIdItem,
-            "class" => get_class($itemVariable)
-        );
-        $this->storeVariableKeyValue($callIdItem, $itemVariable->getIdentifier(), $data);
+
+        $variable = new ItemVariableStorable($deliveryResultIdentifier, $test, $itemVariable, $item, $callIdItem);
+
+        $this->storeVariableKeyValue($callIdItem, $variable->getIdentifier(), $variable);
     }
     
     public function storeItemVariables($deliveryResultIdentifier, $test, $item, array $itemVariables, $callIdItem)
     {
-        foreach ($itemVariables as $itemVariable)
-        {
-            $this->storeItemVariable($deliveryResultIdentifier, $test, $item, $itemVariable, $callIdItem);
-        }
+        $variablesCollection = VariableStorableCollection::createItemVariableCollection(
+            $callIdItem,
+            $item,
+            $deliveryResultIdentifier,
+            $test,
+            $itemVariables
+        );
+
+        $callId = self::PREFIX_CALL_ID . $variablesCollection->getIdentifier();
+
+        $this->getPersistence()->hmSet($callId, $variablesCollection->toStorableArray());
     }
 
  /**
