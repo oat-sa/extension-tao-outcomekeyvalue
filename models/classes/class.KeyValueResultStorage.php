@@ -159,7 +159,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      * retrieve specific parameters from the resultserver to configure the storage
      */
     /*sic*/
-    public function configure(core_kernel_classes_Resource $resultserver, $callOptions = array())
+    public function configure($callOptions = array())
     {}
 
     public function storeRelatedTestTaker($deliveryResultIdentifier, $testTakerIdentifier)
