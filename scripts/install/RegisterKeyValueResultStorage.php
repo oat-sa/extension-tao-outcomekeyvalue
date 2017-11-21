@@ -34,6 +34,6 @@ class RegisterKeyValueResultStorage extends InstallAction
             return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, 'Key Value Result Storage registered!');
         }
         
-        return new \common_report_Report(\common_report_Report::TYPE_WARNING, 'Key Value Storage could not be registered!');
+        return new \common_report_Report(\common_report_Report::TYPE_WARNING, 'Key Value Storage could not be registered! Indeed, the ResultServerService is too old.');
     }
 }
