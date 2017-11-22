@@ -143,16 +143,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function storeTestVariables($deliveryResultIdentifier, $test, array $testVariables, $callIdTest)
     {
-        $variablesCollection = VariableStorableCollection::createTestVariableCollection(
-            $callIdTest,
-            $deliveryResultIdentifier,
-            $test,
-            $testVariables
-        );
-
-        $callId = self::PREFIX_CALL_ID . $variablesCollection->getIdentifier();
-
-        $this->getPersistence()->hmSet($callId, $variablesCollection->toStorableArray());
+        foreach ($testVariables as $testVariable) {
+            $this->storeTestVariable($deliveryResultIdentifier, $test, $testVariable, $callIdTest);
+        }
     }
     
     /*
@@ -191,17 +184,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     
     public function storeItemVariables($deliveryResultIdentifier, $test, $item, array $itemVariables, $callIdItem)
     {
-        $variablesCollection = VariableStorableCollection::createItemVariableCollection(
-            $callIdItem,
-            $item,
-            $deliveryResultIdentifier,
-            $test,
-            $itemVariables
-        );
-
-        $callId = self::PREFIX_CALL_ID . $variablesCollection->getIdentifier();
-
-        $this->getPersistence()->hmSet($callId, $variablesCollection->toStorableArray());
+        foreach ($itemVariables as $itemVariable) {
+            $this->storeItemVariable($deliveryResultIdentifier, $test, $item, $itemVariable, $callIdItem);
+        }
     }
 
  /**
