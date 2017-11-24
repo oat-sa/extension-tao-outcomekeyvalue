@@ -1,5 +1,4 @@
 <?php
-
 /*
  * @author CRP Henri Tudor - TAO Team - {@link http://www.tao.lu}
  * @license GPLv2  http://www.opensource.org/licenses/gpl-2.0.php
@@ -12,18 +11,23 @@ return array(
 	'name' => 'taoAltResultStorage',
     'label' => 'Result storage key-value implementation',
 	'description' => 'Implements Alternative Result storage results interface using persistencies',
-	'version' => '2.3.0',
+	'version' => '3.0.1',
     'license' => 'GPL-2.0',
 	'author' => 'Open Assessment Technologies',
-	'requires' => array(
-        'taoResultServer' => '>=2.6'
-	),
-	'models' => array(
+	'requires' => [
+        'taoResultServer' => '>=4.2.0'
+	],
+	'models' => [
 		'http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#'
-        ),
-	'install' => array('rdf' => array(
-			dirname(__FILE__). '/models/ontology/taoAltResultStorage.rdf'
-		)),
+        ],
+	'install' => [
+        'rdf' => [
+			__DIR__ . '/models/ontology/taoAltResultStorage.rdf'
+		],
+        'php' => [
+            oat\taoAltResultStorage\scripts\install\RegisterKeyValueResultStorage::class
+        ]
+    ],
 	'update' => 'oat\\taoAltResultStorage\\scripts\\update\\Updater',
  	'constants' => array(
 	 	# actions directory
