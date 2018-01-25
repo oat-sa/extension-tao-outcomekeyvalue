@@ -23,6 +23,7 @@ use oat\taoAltResultStorage\models\Collection\VariableStorableCollection;
 use oat\taoAltResultStorage\models\Entity\ItemVariableStorable;
 use oat\taoAltResultStorage\models\Entity\TestVariableStorable;
 use oat\taoAltResultStorage\models\Entity\VariableStorable;
+use oat\taoResultServer\models\classes\ResultDeliveryExecutionDelete;
 use oat\taoResultServer\models\classes\ResultManagement;
 
 /**
@@ -43,6 +44,7 @@ use oat\taoResultServer\models\classes\ResultManagement;
 class taoAltResultStorage_models_classes_KeyValueResultStorage extends ConfigurableService
     implements taoResultServer_models_classes_WritableResultStorage, ResultManagement
 {
+    use ResultDeliveryExecutionDelete;
     const SERVICE_ID = 'taoAltResultStorage/KeyValueResultStorage';
 
     /** result storage persistence identifier */
