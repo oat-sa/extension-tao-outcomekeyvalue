@@ -92,19 +92,19 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         $observed = $this->getPersistence()->hExists($callId, $variableIdentifier);
         if (! ($observed)) {
             // Time complexity: O(1)
-            $this->getPersistence()->hSet($callId, $variableIdentifier, json_encode(array(
+            $this->getPersistence()->hSet($callId, $variableIdentifier, $this->serializeVariableValue(array(
                 $data
             )));
         } else {
             // Time complexity: O(1)
-            $variableObservations = json_decode($this->getPersistence()->hGet($callId, $variableIdentifier));
+            $variableObservations = $this->unserializeVariableValue($this->getPersistence()->hGet($callId, $variableIdentifier));
             // if (is_array($variableObservations)) {
             $variableObservations[] = $data;
             /*
              * } else { $variableObservations = array($data); }
              */
             // Time complexity: O(1)
-            $this->getPersistence()->hSet($callId, $variableIdentifier, json_encode($variableObservations));
+            $this->getPersistence()->hSet($callId, $variableIdentifier, $this->serializeVariableValue($variableObservations));
         }
     }
 
@@ -224,7 +224,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     {
         $variables = $this->getPersistence()->hGetAll(self::PREFIX_CALL_ID . $callId);
         foreach ($variables as $variableIdentifier=>$variableObservations){
-            $observations = json_decode($variableObservations);
+            $observations =  $this->unserializeVariableValue($variableObservations);
             foreach ($observations as $key=>$observation) {
                 $observation->variable = unserialize($observation->variable);
             }
@@ -254,7 +254,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     public function getVariable($callId, $variableIdentifier)
     {
-        $observations = json_decode($this->getPersistence()->hGet(self::PREFIX_CALL_ID . $callId, $variableIdentifier));
+        $observations = $this->unserializeVariableValue($this->getPersistence()->hGet(self::PREFIX_CALL_ID . $callId, $variableIdentifier));
         foreach ($observations as $key => $observation) {
             $observation->variable = unserialize($observation->variable);
             $observations[$key] = $observation;
@@ -341,7 +341,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     {
         $variableIds = explode('http://',$variableId);
         $variableId = "http://".$variableIds[2];
-        $response = json_decode($this->getPersistence()->hGet(self::PREFIX_CALL_ID.$variableId, "RESPONSE"));
+        $response =  $this->unserializeVariableValue($this->getPersistence()->hGet(self::PREFIX_CALL_ID.$variableId, "RESPONSE"));
         $variable = unserialize($response[0]->variable);
 
         $getter = 'get'.ucfirst($property);
@@ -429,5 +429,23 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         $return = $return && $this->getPersistence()->del(self::PREFIX_DELIVERY . $deliveryResultIdentifier);
         $return = $return && $this->getPersistence()->del(self::PREFIX_TESTTAKER . $deliveryResultIdentifier);
         return $return;
+    }
+
+    /**
+     * @param $value
+     * @return mixed
+     */
+    protected function unserializeVariableValue($value)
+    {
+        return json_decode($value);
+    }
+
+    /**
+     * @param $value
+     * @return string
+     */
+    protected function serializeVariableValue($value)
+    {
+        return json_encode($value);
     }
 }
