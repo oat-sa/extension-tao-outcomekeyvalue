@@ -192,7 +192,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     }
 
  /**
-     * @param callId an item execution identifier
+     * @param string|array one or more callIds (item execution identifier)
      * @return array keys as variableIdentifier , values is an array of observations , 
      * each observation is an object with deliveryResultIdentifier, test, taoResultServer_models_classes_Variable variable, callIdTest
      * Array
@@ -222,17 +222,27 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function getVariables($callId)
     {
-        $variables = $this->getPersistence()->hGetAll(self::PREFIX_CALL_ID . $callId);
-        foreach ($variables as $variableIdentifier=>$variableObservations){
-            $observations =  $this->unserializeVariableValue($variableObservations);
-            foreach ($observations as $key=>$observation) {
-                $observation->variable = unserialize($observation->variable);
+        $variables = [];
+
+        if (is_array($callId)) {
+            foreach ($callId as $id) {
+                $variables = array_merge($variables, $this->getVariables($id));
+            }
+        } else {
+            $tmpVariables = $this->getPersistence()->hGetAll(self::PREFIX_CALL_ID . $callId);
+
+            foreach ($tmpVariables as $variableIdentifier => $variableObservations) {
+                $observations = $this->unserializeVariableValue($variableObservations);
+                foreach ($observations as $key => $observation) {
+                    $observation->variable = unserialize($observation->variable);
+                }
+
+                $variables[$callId . $variableIdentifier] = $observations;
             }
 
-
-            $variables[$variableIdentifier] = $observations;
+            unset($tmpVariables);
         }
-//        common_Logger::w('test : '.print_r($variables,true));
+
         return $variables;
     }
 
