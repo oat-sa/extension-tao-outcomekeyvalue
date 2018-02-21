@@ -19,10 +19,10 @@
  */
 
 use oat\oatbox\service\ConfigurableService;
-use oat\taoAltResultStorage\models\Collection\VariableStorableCollection;
-use oat\taoAltResultStorage\models\Entity\ItemVariableStorable;
-use oat\taoAltResultStorage\models\Entity\TestVariableStorable;
-use oat\taoAltResultStorage\models\Entity\VariableStorable;
+use oat\taoResultServer\models\Collection\VariableStorableCollection;
+use oat\taoResultServer\models\Entity\ItemVariableStorable;
+use oat\taoResultServer\models\Entity\TestVariableStorable;
+use oat\taoResultServer\models\Entity\VariableStorable;
 use oat\taoResultServer\models\classes\ResultDeliveryExecutionDelete;
 use oat\taoResultServer\models\classes\ResultManagement;
 
