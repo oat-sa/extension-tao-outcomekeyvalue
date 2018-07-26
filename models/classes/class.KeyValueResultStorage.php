@@ -350,7 +350,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     public function getVariableProperty($variableId, $property)
     {
         $variableIds = explode('http://',$variableId);
-        $variableId = "http://".$variableIds[2];
+        $variableId = $variableIds[0] . 'http://' . $variableIds[2];
         $response =  $this->unserializeVariableValue($this->getPersistence()->hGet(self::PREFIX_CALL_ID.$variableId, "RESPONSE"));
         $variable = unserialize($response[0]->variable);
 
