@@ -349,9 +349,12 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function getVariableProperty($variableId, $property)
     {
-        $variableIds = explode('http://',$variableId);
-        $variableId = "http://".$variableIds[2];
-        $response =  $this->unserializeVariableValue($this->getPersistence()->hGet(self::PREFIX_CALL_ID.$variableId, "RESPONSE"));
+        $response =  $this->unserializeVariableValue(
+            $this->getPersistence()->hGet(
+                self::PREFIX_CALL_ID.$this->extractResultVariableProperty($variableId),
+                "RESPONSE"
+            )
+        );
         $variable = unserialize($response[0]->variable);
 
         $getter = 'get'.ucfirst($property);
@@ -359,6 +362,20 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             return $variable->$getter();
         }
         return '';
+    }
+
+    /**
+     * Returns the variable property key from the absolute variable key.
+     *
+     * @param $variableId
+     *
+     * @return string
+     */
+    public function extractResultVariableProperty($variableId)
+    {
+        $variableIds = explode('http://',$variableId);
+
+        return $variableIds[0] . 'http://' . $variableIds[2];
     }
 
     /**
