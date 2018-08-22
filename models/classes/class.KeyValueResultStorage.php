@@ -77,6 +77,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             $perisistenceManager = $this->getServiceLocator()->get(common_persistence_Manager::SERVICE_ID);
             $this->persistence = $perisistenceManager->getPersistenceById($this->getOption(self::OPTION_PERSISTENCE));
         }
+
         return $this->persistence;
     }
 
@@ -117,9 +118,9 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     /**
      * Ids must be delegated on key value persistency as we may want to load balance and keep unique identifier
      */
-    public function spawnResult(){
+    public function spawnResult()
+    {
         return "id_".$this->getPersistence()->incr(self::PREFIX_RESULT_ID);
-        
     }   
     
     /**
@@ -197,7 +198,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         }
     }
 
- /**
+    /**
      * @param string|array one or more callIds (item execution identifier)
      * @return array keys as variableIdentifier , values is an array of observations , 
      * each observation is an object with deliveryResultIdentifier, test, taoResultServer_models_classes_Variable variable, callIdTest
@@ -243,6 +244,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
                     $observation->variable = unserialize($observation->variable);
                     $observation->uri = $observation->uri . static::PROPERTY_SEPARATOR . $observation->variable->getIdentifier();
                 }
+
                 $variables[$callId . $variableIdentifier] = $observations;
             }
 
@@ -265,6 +267,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
                 $result[$variable[0]->uri.$varId] = $variable;
             }
         }
+
         return $result;
     }
 
@@ -275,19 +278,21 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             $observation->variable = unserialize($observation->variable);
             $observations[$key] = $observation;
         }
+
         return  $observations;   
-        
     }
 
     public function getTestTaker($deliveryResultIdentifier)
     {
         $testTaker = $this->getTestTakerArray($deliveryResultIdentifier);
+
         return $testTaker['testTakerIdentifier'];
     }
 
     public function getDelivery($deliveryResultIdentifier)
     {
         $delivery = $this->getDeliveryArray($deliveryResultIdentifier);
+
         return $delivery['deliveryIdentifier'];
     }
 
@@ -310,6 +315,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     {
         $keys = $this->getPersistence()->keys(self::PREFIX_CALL_ID . '*');
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_CALL_ID);
+
         return $keys;
     }
     /**
@@ -323,6 +329,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         foreach ($keys as $key) {
             $deliveryResults[$key] = $this->getTestTakerArray($key);
         }
+
         return $deliveryResults;
     }
     /**
@@ -336,6 +343,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         foreach ($keys as $key) {
             $deliveryResults[$key] = $this->getDeliveryArray($key);
         }
+
         return $deliveryResults;
     }
 
@@ -365,9 +373,10 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         $variable = unserialize($response[0]->variable);
 
         $getter = 'get'.ucfirst($property);
-        if(method_exists($variable, $getter)){
+        if (method_exists($variable, $getter)) {
             return $variable->$getter();
         }
+
         return '';
     }
 
@@ -402,6 +411,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     {
         $keys = $this->getPersistence()->keys(self::PREFIX_CALL_ID . $deliveryResultIdentifier . '.*');
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_CALL_ID);
+
         return $keys;
     }
 
@@ -415,13 +425,13 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     {
         $keys = $this->getPersistence()->keys(self::PREFIX_CALL_ID . $deliveryResultIdentifier);
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_CALL_ID);
+
         return $keys;
     }
 
 
     public function getResultByDelivery($delivery, $options = array())
     {
-
         $returnValue = array();
         $keys = $this->getPersistence()->keys(self::PREFIX_DELIVERY . '*');
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
@@ -435,6 +445,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
                 );
             }
         }
+
         return $returnValue;
     }
 
@@ -449,6 +460,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
                 $count++;
             }
         }
+
         return $count;
     }
 
@@ -469,6 +481,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         }
         $return = $return && $this->getPersistence()->del(self::PREFIX_DELIVERY . $deliveryResultIdentifier);
         $return = $return && $this->getPersistence()->del(self::PREFIX_TESTTAKER . $deliveryResultIdentifier);
+
         return $return;
     }
 
