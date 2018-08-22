@@ -57,6 +57,11 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     const PREFIX_RESULT_ID ='taoAltResultStorage:id';
 
     /**
+     * Property separator string.
+     */
+    const PROPERTY_SEPARATOR = '_prop_';
+
+    /**
      * @var common_persistence_AdvKeyValuePersistence
      */
     private $persistence;
@@ -85,6 +90,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     private function storeVariableKeyValue($callId, $variableIdentifier, $data)
     {
         $callId = self::PREFIX_CALL_ID . $callId;
+
         /*
          * seems to be the same complexity, worse if not yet value set for that key to be benchmarked against the general case only
          */
@@ -235,8 +241,8 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
                 $observations = $this->unserializeVariableValue($variableObservations);
                 foreach ($observations as $key => $observation) {
                     $observation->variable = unserialize($observation->variable);
+                    $observation->uri = $observation->uri . static::PROPERTY_SEPARATOR . $observation->variable->getIdentifier();
                 }
-
                 $variables[$callId . $variableIdentifier] = $observations;
             }
 
@@ -349,10 +355,11 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function getVariableProperty($variableId, $property)
     {
+        list($itemUri, $propertyName) = $this->extractResultVariableProperty($variableId);
         $response =  $this->unserializeVariableValue(
             $this->getPersistence()->hGet(
-                self::PREFIX_CALL_ID.$this->extractResultVariableProperty($variableId),
-                "RESPONSE"
+                self::PREFIX_CALL_ID.$itemUri,
+                $propertyName
             )
         );
         $variable = unserialize($response[0]->variable);
@@ -367,15 +374,22 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     /**
      * Returns the variable property key from the absolute variable key.
      *
-     * @param $variableId
+     * @param string $variableId
      *
-     * @return string
+     * @return array
      */
     public function extractResultVariableProperty($variableId)
     {
         $variableIds = explode('http://',$variableId);
+        $parts = explode(static::PROPERTY_SEPARATOR, $variableIds[2]);
 
-        return $variableIds[0] . 'http://' . $variableIds[2];
+        $itemUri = $variableIds[0] . 'http://' . $parts[0];
+        $propertyName = empty($parts[1]) ? 'RESPONSE' : $parts[1];
+
+        return [
+            $itemUri,
+            $propertyName
+        ];
     }
 
     /**
