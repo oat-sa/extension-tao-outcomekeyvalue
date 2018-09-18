@@ -255,7 +255,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     }
 
     /**
-     * @param $deliveryResultIdentifier
+     * @param string|array $deliveryResultIdentifier
      * @return array
      */
     public function getDeliveryVariables($deliveryResultIdentifier)
@@ -263,9 +263,11 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         $variables = [];
 
         if (is_array($deliveryResultIdentifier)) {
+            $deliveryVariables = [];
             foreach ($deliveryResultIdentifier as $id) {
-                $variables = array_merge($variables, $this->getDeliveryVariables($id));
+                $deliveryVariables[] = $this->getDeliveryVariables($id);
             }
+            $variables = array_merge(...$deliveryVariables);
         } else {
             $keys = $this->getPersistence()->keys(self::PREFIX_CALL_ID . $deliveryResultIdentifier . '.*');
             foreach ($keys as $key) {
