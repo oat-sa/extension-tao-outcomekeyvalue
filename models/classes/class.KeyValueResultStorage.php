@@ -247,19 +247,29 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     }
 
     /**
-     * @param $deliveryResultIdentifier
+     * @param string|array $deliveryResultIdentifier
      * @return array
      */
     public function getDeliveryVariables($deliveryResultIdentifier)
     {
-        $keys = $this->getPersistence()->keys(self::PREFIX_CALL_ID . $deliveryResultIdentifier . '.*');
-        $result = [];
-        foreach ($keys as $key) {
-            foreach ($this->getVariables(str_replace(self::PREFIX_CALL_ID, '', $key)) as $varId => $variable) {
-                $result[$variable[0]->uri.$varId] = $variable;
+        $variables = [];
+
+        if (is_array($deliveryResultIdentifier)) {
+            $deliveryVariables = [];
+            foreach ($deliveryResultIdentifier as $id) {
+                $deliveryVariables[] = $this->getDeliveryVariables($id);
+            }
+            $variables = array_merge(...$deliveryVariables);
+        } else {
+            $keys = $this->getPersistence()->keys(self::PREFIX_CALL_ID . $deliveryResultIdentifier . '.*');
+            foreach ($keys as $key) {
+                foreach ($this->getVariables(str_replace(self::PREFIX_CALL_ID, '', $key)) as $varId => $variable) {
+                    $variables[$variable[0]->uri.$varId] = $variable;
+                }
             }
         }
-        return $result;
+
+        return $variables;
     }
 
     public function getVariable($callId, $variableIdentifier)
