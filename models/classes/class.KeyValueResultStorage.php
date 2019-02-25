@@ -19,6 +19,7 @@
  */
 
 use oat\oatbox\service\ConfigurableService;
+use oat\taoDelivery\model\execution\ServiceProxy;
 use oat\taoResultServer\models\Collection\VariableStorableCollection;
 use oat\taoResultServer\models\Entity\ItemVariableStorable;
 use oat\taoResultServer\models\Entity\TestVariableStorable;
@@ -471,6 +472,37 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
         return $count;
     }
+
+
+    public function getResultByDeliveryAndPeriod($delivery, $options = array(), $period=[])
+    {
+        $returnValue = array();
+        $keys = $this->getPersistence()->keys(self::PREFIX_DELIVERY . '*');
+        array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
+        foreach ($keys as $key) {
+
+            $deliveryExecution= ServiceProxy::singleton()->getDeliveryExecution($key);
+            if(isset($period['start_time'])){
+                if($period['start_time']< $deliveryExecution->getStartTime())
+                    continue;
+            }
+            if(isset($period['end_time'])){
+                if($period['end_time']< $deliveryExecution->getFinishTime())
+                    continue;
+            }
+
+            if(empty($delivery) || in_array($this->getDelivery($key),$delivery)){
+                $returnValue[] = array(
+                    "deliveryResultIdentifier" => $key,
+                    "testTakerIdentifier" => $this->getTestTaker($key),
+                    "deliveryIdentifier" => $deliveryExecution
+                );
+            }
+        }
+
+        return $returnValue;
+    }
+
 
 
     /**
