@@ -503,6 +503,31 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         return $returnValue;
     }
 
+    public function countByDeliveryAndPeriod($delivery, $options = array(), $period=[]){
+        $count =0;
+        $returnValue = array();
+        $keys = $this->getPersistence()->keys(self::PREFIX_DELIVERY . '*');
+        array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
+        foreach ($keys as $key) {
+
+            $deliveryExecution= ServiceProxy::singleton()->getDeliveryExecution($key);
+            if(isset($period['start_time'])){
+                if($period['start_time']< $deliveryExecution->getStartTime())
+                    continue;
+            }
+            if(isset($period['end_time'])){
+                if($period['end_time']< $deliveryExecution->getFinishTime())
+                    continue;
+            }
+            if(empty($delivery) || in_array($this->getDelivery($key),$delivery)){
+
+                $count++;
+            }
+        }
+
+        return $returnValue;
+    }
+
 
 
     /**
