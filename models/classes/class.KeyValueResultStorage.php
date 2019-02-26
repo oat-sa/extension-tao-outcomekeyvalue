@@ -447,7 +447,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         foreach ($keys as $key) {
 
             $deliveryExecution= ServiceProxy::singleton()->getDeliveryExecution($key);
-            if(isset($options['start_time'])){
+            if (array_key_exists('start_time', $options) or array_key_exists('end_time', $options)){
                 if($options['start_time']> $deliveryExecution->getStartTime()||$deliveryExecution->getStartTime()>$options['end_time'])
                     continue;
             }
