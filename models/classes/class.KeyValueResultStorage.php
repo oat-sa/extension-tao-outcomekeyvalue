@@ -445,12 +445,17 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         $keys = $this->getPersistence()->keys(self::PREFIX_DELIVERY . '*');
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
         foreach ($keys as $key) {
-            $deliveryExecution = $this->getDelivery($key);
-            if(empty($delivery) || in_array($deliveryExecution,$delivery)){
+
+            $deliveryExecution= ServiceProxy::singleton()->getDeliveryExecution($key);
+            if(isset($options['start_time'])){
+                if($options['start_time']> $deliveryExecution->getStartTime()||$deliveryExecution->getStartTime()>$options['end_time'])
+                    continue;
+            }
+            if(empty($delivery) || in_array($this->getDelivery($key),$delivery)){
                 $returnValue[] = array(
                     "deliveryResultIdentifier" => $key,
                     "testTakerIdentifier" => $this->getTestTaker($key),
-                    "deliveryIdentifier" => $deliveryExecution
+                    "deliveryIdentifier" => $this->getDelivery($key)
                 );
             }
         }
@@ -458,76 +463,25 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         return $returnValue;
     }
 
-    public function countResultByDelivery($delivery)
+    public function countResultByDelivery($delivery, $options=[])
     {
         $count = 0;
         $keys = $this->getPersistence()->keys(self::PREFIX_DELIVERY . '*');
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
         foreach ($keys as $key) {
-            $deliveryExecution = $this->getDelivery($key);
-            if(empty($delivery) || in_array($deliveryExecution,$delivery)){
+            $deliveryExecution= ServiceProxy::singleton()->getDeliveryExecution($key);
+            if(isset($options['start_time'])){
+                if($options['start_time']< $deliveryExecution->getStartTime()||$deliveryExecution->getStartTime()>$options['end_time'])
+                    continue;
+            }
+
+            if(empty($delivery) || in_array($this->getDelivery($key),$delivery)){
                 $count++;
             }
         }
 
         return $count;
     }
-
-
-    public function getResultByDeliveryAndPeriod($delivery, $options = array(), $period=[])
-    {
-        $returnValue = array();
-        $keys = $this->getPersistence()->keys(self::PREFIX_DELIVERY . '*');
-        array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
-        foreach ($keys as $key) {
-
-            $deliveryExecution= ServiceProxy::singleton()->getDeliveryExecution($key);
-            if(isset($period['start_time'])){
-                if($period['start_time']< $deliveryExecution->getStartTime())
-                    continue;
-            }
-            if(isset($period['end_time'])){
-                if($period['end_time']< $deliveryExecution->getFinishTime())
-                    continue;
-            }
-
-            if(empty($delivery) || in_array($this->getDelivery($key),$delivery)){
-                $returnValue[] = array(
-                    "deliveryResultIdentifier" => $key,
-                    "testTakerIdentifier" => $this->getTestTaker($key),
-                    "deliveryIdentifier" => $deliveryExecution
-                );
-            }
-        }
-
-        return $returnValue;
-    }
-
-    public function countByDeliveryAndPeriod($delivery, $options = array(), $period=[]){
-        $count =0;
-        $returnValue = array();
-        $keys = $this->getPersistence()->keys(self::PREFIX_DELIVERY . '*');
-        array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
-        foreach ($keys as $key) {
-
-            $deliveryExecution= ServiceProxy::singleton()->getDeliveryExecution($key);
-            if(isset($period['start_time'])){
-                if($period['start_time']< $deliveryExecution->getStartTime())
-                    continue;
-            }
-            if(isset($period['end_time'])){
-                if($period['end_time']< $deliveryExecution->getFinishTime())
-                    continue;
-            }
-            if(empty($delivery) || in_array($this->getDelivery($key),$delivery)){
-
-                $count++;
-            }
-        }
-
-        return $returnValue;
-    }
-
 
 
     /**
