@@ -446,10 +446,31 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
         foreach ($keys as $key) {
 
-            $deliveryExecution= ServiceProxy::singleton()->getDeliveryExecution($key);
-            if (array_key_exists('start_time', $options) or array_key_exists('end_time', $options)){
-                if($options['start_time']> $deliveryExecution->getStartTime()||$deliveryExecution->getStartTime()>$options['end_time'])
+            $execution= ServiceProxy::singleton()->getDeliveryExecution($key);
+
+            if (array_key_exists('startfrom', $options) && $options['startfrom'] !== false) {
+                if (\tao_helpers_Date::getTimeStamp($execution->getStartTime(), false) <= $options['startfrom']) {
                     continue;
+                }
+
+            }
+            if (array_key_exists('startto', $options) && $options['startto'] !== false) {
+                if (\tao_helpers_Date::getTimeStamp($execution->getStartTime(), false) >= $options['startto']) {
+                    continue;
+                }
+
+            }
+            if (array_key_exists('endfrom', $options) && $options['endfrom'] !== false) {
+                if (\tao_helpers_Date::getTimeStamp($execution->getFinishTime(), false) <= $options['endfrom']) {
+                    continue;
+                }
+
+            }
+            if (array_key_exists('endto', $options) && $options['endto'] !== false) {
+                if (\tao_helpers_Date::getTimeStamp($execution->getFinishTime(), false) >= $options['endto']) {
+                    continue;
+                }
+
             }
             if(empty($delivery) || in_array($this->getDelivery($key),$delivery)){
                 $returnValue[] = array(
