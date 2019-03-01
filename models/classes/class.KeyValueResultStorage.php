@@ -55,7 +55,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     const PREFIX_CALL_ID = 'taoAltResultStorage:callIdVariables'; // keyPrefixCallId.$callId --> variables
     const PREFIX_TESTTAKER = 'taoAltResultStorage:resultsTestTaker'; // keyPrefixTestTaker.$deliveryResultIdentifier -->testtaker
     const PREFIX_DELIVERY = 'taoAltResultStorage:resultsDelivery'; // keyPrefixDelivery.$deliveryResultIdentifier -->testtaker
-    const PREFIX_RESULT_ID ='taoAltResultStorage:id';
+    const PREFIX_RESULT_ID = 'taoAltResultStorage:id';
 
     /**
      * Property separator string.
@@ -98,7 +98,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
          */
         // Time complexity: O(1)
         $observed = $this->getPersistence()->hExists($callId, $variableIdentifier);
-        if (! ($observed)) {
+        if (!($observed)) {
             // Time complexity: O(1)
             $this->getPersistence()->hSet($callId, $variableIdentifier, $this->serializeVariableValue(array(
                 $data
@@ -121,22 +121,22 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function spawnResult()
     {
-        return "id_".$this->getPersistence()->incr(self::PREFIX_RESULT_ID);
-    }   
-    
+        return "id_" . $this->getPersistence()->incr(self::PREFIX_RESULT_ID);
+    }
+
     /**
      *
      * @param type $deliveryResultIdentifier
      *            lis_result_sourcedid
      * @param type $test
      *            ignored
-     * @param taoResultServer_models_classes_Variable $testVariable            
+     * @param taoResultServer_models_classes_Variable $testVariable
      * @param type $callIdTest
      *            ignored
      */
     public function storeTestVariable($deliveryResultIdentifier, $test, taoResultServer_models_classes_Variable $testVariable, $callIdTest)
     {
-        if (! ($testVariable->isSetEpoch())) {
+        if (!($testVariable->isSetEpoch())) {
             $testVariable->setEpoch(microtime());
         }
 
@@ -157,13 +157,14 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             $this->storeTestVariable($deliveryResultIdentifier, $test, $testVariable, $callIdTest);
         }
     }
-    
+
     /*
      * retrieve specific parameters from the resultserver to configure the storage
      */
     /*sic*/
     public function configure($callOptions = array())
-    {}
+    {
+    }
 
     public function storeRelatedTestTaker($deliveryResultIdentifier, $testTakerIdentifier)
     {
@@ -183,7 +184,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     public function storeItemVariable($deliveryResultIdentifier, $test, $item, taoResultServer_models_classes_Variable $itemVariable, $callIdItem)
     {
-        if (! ($itemVariable->isSetEpoch())) {
+        if (!($itemVariable->isSetEpoch())) {
             $itemVariable->setEpoch(microtime());
         }
 
@@ -191,7 +192,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
         $this->storeVariableKeyValue($callIdItem, $variable->getIdentifier(), $variable);
     }
-    
+
     public function storeItemVariables($deliveryResultIdentifier, $test, $item, array $itemVariables, $callIdItem)
     {
         foreach ($itemVariables as $itemVariable) {
@@ -201,32 +202,32 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     /**
      * @param string|array one or more callIds (item execution identifier)
-     * @return array keys as variableIdentifier , values is an array of observations , 
+     * @return array keys as variableIdentifier , values is an array of observations ,
      * each observation is an object with deliveryResultIdentifier, test, taoResultServer_models_classes_Variable variable, callIdTest
      * Array
-    (
-    [LtiOutcome] => Array
-        (
-            [0] => stdClass Object
-                (
-                    [deliveryResultIdentifier] => con-777:::rlid-777:::777777
-                    [test] => http://tao26/tao26.rdf#i1402389674744647
-                    [variable] => taoResultServer_models_classes_OutcomeVariable Object
-                        (
-                            [normalMaximum] => 
-                            [normalMinimum] => 
-                            [value] => MC41
-                            [identifier] => LtiOutcome
-                            [cardinality] => single
-                            [baseType] => float
-                            [epoch] => 0.10037600 1402390997
-                        )
-                    [callIdTest] => http://tao26/tao26.rdf#i14023907995907103
-                )
-
-        )
-
-    )
+     * (
+     * [LtiOutcome] => Array
+     * (
+     * [0] => stdClass Object
+     * (
+     * [deliveryResultIdentifier] => con-777:::rlid-777:::777777
+     * [test] => http://tao26/tao26.rdf#i1402389674744647
+     * [variable] => taoResultServer_models_classes_OutcomeVariable Object
+     * (
+     * [normalMaximum] =>
+     * [normalMinimum] =>
+     * [value] => MC41
+     * [identifier] => LtiOutcome
+     * [cardinality] => single
+     * [baseType] => float
+     * [epoch] => 0.10037600 1402390997
+     * )
+     * [callIdTest] => http://tao26/tao26.rdf#i14023907995907103
+     * )
+     *
+     * )
+     *
+     * )
      */
     public function getVariables($callId)
     {
@@ -273,7 +274,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             $keys = $this->getPersistence()->keys(self::PREFIX_CALL_ID . $deliveryResultIdentifier . '.*');
             foreach ($keys as $key) {
                 foreach ($this->getVariables(str_replace(self::PREFIX_CALL_ID, '', $key)) as $varId => $variable) {
-                    $variables[$variable[0]->uri.$varId] = $variable;
+                    $variables[$variable[0]->uri . $varId] = $variable;
                 }
             }
         }
@@ -288,7 +289,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             $observations[$key] = $observation;
         }
 
-        return  $observations;   
+        return $observations;
     }
 
     public function getTestTaker($deliveryResultIdentifier)
@@ -327,6 +328,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
         return $keys;
     }
+
     /**
      * @return array each element is a two fields array deliveryResultIdentifier, testTakerIdentifier
      */
@@ -341,6 +343,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
         return $deliveryResults;
     }
+
     /**
      * @return array each element is a two fields array deliveryResultIdentifier, deliveryIdentifier
      */
@@ -373,15 +376,15 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     public function getVariableProperty($variableId, $property)
     {
         list($itemUri, $propertyName) = $this->extractResultVariableProperty($variableId);
-        $response =  $this->unserializeVariableValue(
+        $response = $this->unserializeVariableValue(
             $this->getPersistence()->hGet(
-                self::PREFIX_CALL_ID.$itemUri,
+                self::PREFIX_CALL_ID . $itemUri,
                 $propertyName
             )
         );
         $variable = unserialize($response[0]->variable);
 
-        $getter = 'get'.ucfirst($property);
+        $getter = 'get' . ucfirst($property);
         if (method_exists($variable, $getter)) {
             return $variable->$getter();
         }
@@ -398,7 +401,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function extractResultVariableProperty($variableId)
     {
-        $variableIds = explode('http://',$variableId);
+        $variableIds = explode('http://', $variableId);
         $parts = explode(static::PROPERTY_SEPARATOR, $variableIds[2]);
 
         $itemUri = $variableIds[0] . 'http://' . $parts[0];
@@ -412,7 +415,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     /**
      * @todo Only works for QTI Tests, fix this in a more generic way
-     * 
+     *
      * (non-PHPdoc)
      * @see \oat\taoResultServer\models\classes\ResultManagement::getRelatedItemCallIds()
      */
@@ -426,7 +429,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     /**
      * @todo Only works for QTI Tests, fix this in a more generic way
-     * 
+     *
      * (non-PHPdoc)
      * @see \oat\taoResultServer\models\classes\ResultManagement::getRelatedTestCallIds()
      */
@@ -446,7 +449,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
         foreach ($keys as $key) {
 
-            $execution= ServiceProxy::singleton()->getDeliveryExecution($key);
+            $execution = ServiceProxy::singleton()->getDeliveryExecution($key);
 
             if (array_key_exists('startfrom', $options) && $options['startfrom'] !== false) {
                 if (\tao_helpers_Date::getTimeStamp($execution->getStartTime(), false) <= $options['startfrom']) {
@@ -472,7 +475,8 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
                 }
 
             }
-            if(empty($delivery) || in_array($this->getDelivery($key),$delivery)){
+
+            if (empty($delivery) || in_array($this->getDelivery($key), $delivery)) {
                 $returnValue[] = array(
                     "deliveryResultIdentifier" => $key,
                     "testTakerIdentifier" => $this->getTestTaker($key),
@@ -480,23 +484,25 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
                 );
             }
         }
-
+        if ($options['limit']) {
+            $returnValue = array_slice($returnValue, $options['offset'], $options['limit']);
+        }
         return $returnValue;
     }
 
-    public function countResultByDelivery($delivery, $options=[])
+    public function countResultByDelivery($delivery, $options = [])
     {
         $count = 0;
         $keys = $this->getPersistence()->keys(self::PREFIX_DELIVERY . '*');
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
         foreach ($keys as $key) {
-            $deliveryExecution= ServiceProxy::singleton()->getDeliveryExecution($key);
-            if(isset($options['start_time'])){
-                if($options['start_time']< $deliveryExecution->getStartTime()||$deliveryExecution->getStartTime()>$options['end_time'])
+            $deliveryExecution = ServiceProxy::singleton()->getDeliveryExecution($key);
+            if (isset($options['start_time'])) {
+                if ($options['start_time'] < $deliveryExecution->getStartTime() || $deliveryExecution->getStartTime() > $options['end_time'])
                     continue;
             }
 
-            if(empty($delivery) || in_array($this->getDelivery($key),$delivery)){
+            if (empty($delivery) || in_array($this->getDelivery($key), $delivery)) {
                 $count++;
             }
         }
