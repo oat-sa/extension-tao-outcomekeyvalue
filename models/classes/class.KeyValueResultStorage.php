@@ -20,6 +20,7 @@
 
 use oat\oatbox\service\ConfigurableService;
 use oat\taoDelivery\model\execution\ServiceProxy;
+use oat\taoOutcomeUi\model\ResultsService;
 use oat\taoResultServer\models\Collection\VariableStorableCollection;
 use oat\taoResultServer\models\Entity\ItemVariableStorable;
 use oat\taoResultServer\models\Entity\TestVariableStorable;
@@ -460,26 +461,26 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
             $execution = ServiceProxy::singleton()->getDeliveryExecution($key);
 
-            if (array_key_exists(self::PARAM_START_FROM, $options) && $options[self::PARAM_START_FROM] !== false) {
-                if (\tao_helpers_Date::getTimeStamp($execution->getStartTime(), false) <= $options[self::PARAM_START_FROM]) {
+            if (array_key_exists(ResultsService::PARAM_START_FROM, $options) && $options[ResultsService::PARAM_START_FROM] !== false) {
+                if (\tao_helpers_Date::getTimeStamp($execution->getStartTime(), false) <= $options[ResultsService::PARAM_START_FROM]) {
                     continue;
                 }
 
             }
-            if (array_key_exists(self::PARAM_START_TO, $options) && $options[self::PARAM_START_TO] !== false) {
-                if (\tao_helpers_Date::getTimeStamp($execution->getStartTime(), false) >= $options[self::PARAM_START_TO]) {
+            if (array_key_exists(ResultsService::PARAM_START_TO, $options) && $options[ResultsService::PARAM_START_TO] !== false) {
+                if (\tao_helpers_Date::getTimeStamp($execution->getStartTime(), false) >= $options[ResultsService::PARAM_START_TO]) {
                     continue;
                 }
 
             }
-            if (array_key_exists(self::PARAM_END_FROM, $options) && $options[self::PARAM_END_FROM] !== false) {
-                if (\tao_helpers_Date::getTimeStamp($execution->getFinishTime(), false) <= $options[self::PARAM_END_FROM]) {
+            if (array_key_exists(ResultsService::PARAM_END_FROM, $options) && $options[ResultsService::PARAM_END_FROM] !== false) {
+                if (\tao_helpers_Date::getTimeStamp($execution->getFinishTime(), false) <= $options[ResultsService::PARAM_END_FROM]) {
                     continue;
                 }
 
             }
-            if (array_key_exists(self::PARAM_END_TO, $options) && $options[self::PARAM_END_TO] !== false) {
-                if (\tao_helpers_Date::getTimeStamp($execution->getFinishTime(), false) >= $options[self::PARAM_END_TO]) {
+            if (array_key_exists(ResultsService::PARAM_END_TO, $options) && $options[ResultsService::PARAM_END_TO] !== false) {
+                if (\tao_helpers_Date::getTimeStamp($execution->getFinishTime(), false) >= $options[ResultsService::PARAM_END_TO]) {
                     continue;
                 }
 
