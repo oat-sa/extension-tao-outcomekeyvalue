@@ -19,12 +19,12 @@
  */
 
 use oat\oatbox\service\ConfigurableService;
-use oat\taoResultServer\models\Collection\VariableStorableCollection;
 use oat\taoResultServer\models\Entity\ItemVariableStorable;
 use oat\taoResultServer\models\Entity\TestVariableStorable;
 use oat\taoResultServer\models\Entity\VariableStorable;
 use oat\taoResultServer\models\classes\ResultDeliveryExecutionDelete;
 use oat\taoResultServer\models\classes\ResultManagement;
+use oat\taoResultServer\models\Exceptions\DuplicateVariableException;
 
 /**
  * Implements tao results storage using the configured persistency "taoAltResultStorage"
@@ -97,19 +97,20 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
          */
         // Time complexity: O(1)
         $observed = $this->getPersistence()->hExists($callId, $variableIdentifier);
-        if (! ($observed)) {
+        $serializedData = $this->serializeVariableValue([$data]);
+        if (!$observed) {
             // Time complexity: O(1)
-            $this->getPersistence()->hSet($callId, $variableIdentifier, $this->serializeVariableValue(array(
-                $data
-            )));
+            $this->getPersistence()->hSet($callId, $variableIdentifier, $serializedData);
         } else {
             // Time complexity: O(1)
             $variableObservations = $this->unserializeVariableValue($this->getPersistence()->hGet($callId, $variableIdentifier));
-            // if (is_array($variableObservations)) {
+            $unserializedData = $this->unserializeVariableValue($serializedData);
+
+            if (in_array($unserializedData[0], $variableObservations, false)) {
+                throw new DuplicateVariableException(sprintf('An identical result variable already exists. CallId:%s', $callId));
+            }
+
             $variableObservations[] = $data;
-            /*
-             * } else { $variableObservations = array($data); }
-             */
             // Time complexity: O(1)
             $this->getPersistence()->hSet($callId, $variableIdentifier, $this->serializeVariableValue($variableObservations));
         }
