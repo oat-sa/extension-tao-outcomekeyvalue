@@ -2,7 +2,7 @@
 /*
  * @author CRP Henri Tudor - TAO Team - {@link http://www.tao.lu}
  * @license GPLv2  http://www.opensource.org/licenses/gpl-2.0.php
- * 
+ *
  */
 $extpath = dirname(__FILE__) . DIRECTORY_SEPARATOR;
 $taopath = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'tao' . DIRECTORY_SEPARATOR;
@@ -11,7 +11,7 @@ return array(
     'name' => 'taoAltResultStorage',
     'label' => 'Result storage key-value implementation',
     'description' => 'Implements Alternative Result storage results interface using persistencies',
-    'version' => '5.3.1',
+    'version' => '5.4.0',
     'license' => 'GPL-2.0',
     'author' => 'Open Assessment Technologies',
     'requires' => [
