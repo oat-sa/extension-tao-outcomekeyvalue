@@ -6,7 +6,7 @@
 ![GitHub release](https://img.shields.io/github/release/oat-sa/extension-tao-outcomekeyvalue.svg)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/oat-sa/extension-tao-outcomekeyvalue.svg)
 
-> Extension implements resultServer interface to store results using ontology/statements table
+> Extension implements the tao results storage using the configured persistency "taoAltResultStorage".
 
 ## Installation instructions
 
