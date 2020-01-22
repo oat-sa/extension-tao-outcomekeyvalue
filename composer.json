@@ -61,8 +61,5 @@
   "minimum-stability": "dev",
   "require": {
     "oat-sa/oatbox-extension-installer": "~1.1||dev-master"
-  },
-  "require-dev":{
-    "phpunit/phpunit": "6.5.0"
   }
 }
