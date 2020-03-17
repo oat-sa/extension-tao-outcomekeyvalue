@@ -16,7 +16,7 @@ return array(
     'author' => 'Open Assessment Technologies',
     'requires' => [
         'taoResultServer' => '>=9.3.0',
-        'generis' => '>=12.1.0,'
+        'generis' => '>=12.15.0'
     ],
     'models' => [
         'http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#'
