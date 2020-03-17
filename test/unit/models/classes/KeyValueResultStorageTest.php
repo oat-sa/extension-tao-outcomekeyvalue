@@ -22,6 +22,7 @@ namespace test\unit\models\classes;
 
 use oat\generis\test\TestCase;
 
+use oat\taoResultServer\models\Exceptions\DuplicateVariableException;
 use \taoAltResultStorage_models_classes_KeyValueResultStorage as KeyValueResultStorage;
 
 /**
@@ -39,11 +40,9 @@ class KeyValueResultStorageTest extends TestCase
         $this->assertCount(2, $storage->getVariables('call_id_item#1'));
     }
 
-    /**
-     * @expectedException \oat\taoResultServer\models\Exceptions\DuplicateVariableException
-     */
     public function testStoreItemVariableException()
     {
+        $this->expectException(DuplicateVariableException::class);
         $variable = $this->getVariable(1);
         $storage = $this->getStorage();
         $storage->storeItemVariable('de_id#1', 'test_id#1', 'item_id#1', $variable, 'call_id_item#1');
