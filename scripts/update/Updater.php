@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,29 +15,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2014 (original work) Open Assessment Technologies SA;
- *
+ * Copyright (c) 2014-2020 (original work) Open Assessment Technologies SA;
  *
  */
+
 namespace oat\taoAltResultStorage\scripts\update;
 
+use common_ext_ExtensionUpdater;
 use oat\tao\scripts\update\OntologyUpdater;
 use taoAltResultStorage_models_classes_KeyValueResultStorage as KeyValueResultStorage;
+
 /**
  *
  * @author Joel Bout <joel@taotesting.com>
  */
-class Updater extends \common_ext_ExtensionUpdater {
+class Updater extends common_ext_ExtensionUpdater
+{
 
-	/**
-     *
-     * @param string $currentVersion
-     * @return string $versionUpdatedTo
+    /**
+     * @inheritDoc
      */
-    public function update($initialVersion) {
+    public function update($initialVersion)
+    {
 
 
-        $this->skip('1.0','2.1.0');
+        $this->skip('1.0', '2.1.0');
 
         if ($this->isVersion('2.1.0')) {
             OntologyUpdater::syncModels();
@@ -46,6 +49,6 @@ class Updater extends \common_ext_ExtensionUpdater {
             $this->setVersion('2.2.0');
         }
 
-        $this->skip('2.2.0', '5.5.0');
+        $this->skip('2.2.0', '5.5.1');
     }
 }
