@@ -11,7 +11,7 @@ return array(
     'name' => 'taoAltResultStorage',
     'label' => 'Result storage key-value implementation',
     'description' => 'Implements Alternative Result storage results interface using persistencies',
-    'version' => '5.6.1',
+    'version' => '5.7.0',
     'license' => 'GPL-2.0',
     'author' => 'Open Assessment Technologies',
     'requires' => [
