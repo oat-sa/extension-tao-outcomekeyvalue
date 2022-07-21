@@ -64,5 +64,8 @@
     "oat-sa/generis" : ">=14.0.0",
     "oat-sa/tao-core" : ">=47.0.0",
     "oat-sa/extension-tao-outcome" : ">=13.0.0"
+  },
+  "require-dev": {
+    "oat-sa/extension-tao-delivery": ">=15.10.0"
   }
 }
