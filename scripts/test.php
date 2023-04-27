@@ -1,7 +1,8 @@
 <?php
+
 require_once dirname(__FILE__) . '/../includes/raw_start.php';
 
-//done ahead of your code 
+//done ahead of your code
 $rs = new taoResultServer_models_classes_ResultServerStateFull();
 $rs->initResultServer("http://www.tao.lu/Ontologies/taoAltResultStorage.rdf#KeyValueResultStorage");
 //optional control on Ids
@@ -21,17 +22,17 @@ $callIdItem = "An identifier of the execution of an item occurence for a test ta
 
 $rs->storeItemVariable("sometest identifier", "someidentifier", $itemVariable, $callIdItem);
 
-//and youn want to do this 
+//and youn want to do this
 
 $variables = $rs->getVariables($callIdItem);
 
 
-$variable = $rs->getVariable($callIdItem,"unittest_identifier");
+$variable = $rs->getVariable($callIdItem, "unittest_identifier");
 print_r($variable);
 $testtaker = $rs->getTestTaker($id);
 print_r($testtaker);
 $delivery = $rs->getDelivery($id);
 print_r($delivery);
-//consider results may have been broadcasted to different storages, 
-//thus if one of them does not contain the readable interface, 
-//you don't have an exception globally but partial data. 
+//consider results may have been broadcasted to different storages,
+//thus if one of them does not contain the readable interface,
+//you don't have an exception globally but partial data.

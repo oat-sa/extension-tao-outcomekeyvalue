@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,26 +19,29 @@
  *
  *
  */
+
 namespace oat\taoAltResultStorage\scripts\update;
 
 use oat\tao\scripts\update\OntologyUpdater;
 use taoAltResultStorage_models_classes_KeyValueResultStorage as KeyValueResultStorage;
+
 /**
  *
  * @author Joel Bout <joel@taotesting.com>
  * @deprecated use migrations instead. See https://github.com/oat-sa/generis/wiki/Tao-Update-Process
  */
-class Updater extends \common_ext_ExtensionUpdater {
-
-	/**
+class Updater extends \common_ext_ExtensionUpdater
+{
+    /**
      *
      * @param string $currentVersion
      * @return string $versionUpdatedTo
      */
-    public function update($initialVersion) {
+    public function update($initialVersion)
+    {
 
 
-        $this->skip('1.0','2.1.0');
+        $this->skip('1.0', '2.1.0');
 
         if ($this->isVersion('2.1.0')) {
             OntologyUpdater::syncModels();
@@ -48,7 +52,7 @@ class Updater extends \common_ext_ExtensionUpdater {
         }
 
         $this->skip('2.2.0', '5.6.1');
-        
+
         //Updater files are deprecated. Please use migrations.
         //See: https://github.com/oat-sa/generis/wiki/Tao-Update-Process
 

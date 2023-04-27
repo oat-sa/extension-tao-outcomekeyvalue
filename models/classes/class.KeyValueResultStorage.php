@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,10 +42,10 @@ use oat\taoResultServer\models\Exceptions\DuplicateVariableException;
  * ...
  * }
  */
-class taoAltResultStorage_models_classes_KeyValueResultStorage extends ConfigurableService
-    implements taoResultServer_models_classes_WritableResultStorage, ResultManagement
+class taoAltResultStorage_models_classes_KeyValueResultStorage extends ConfigurableService implements taoResultServer_models_classes_WritableResultStorage, ResultManagement
 {
     use ResultDeliveryExecutionDelete;
+
     const SERVICE_ID = 'taoAltResultStorage/KeyValueResultStorage';
 
     /** result storage persistence identifier */
@@ -54,7 +55,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     const PREFIX_CALL_ID = 'taoAltResultStorage:callIdVariables'; // keyPrefixCallId.$callId --> variables
     const PREFIX_TESTTAKER = 'taoAltResultStorage:resultsTestTaker'; // keyPrefixTestTaker.$deliveryResultIdentifier -->testtaker
     const PREFIX_DELIVERY = 'taoAltResultStorage:resultsDelivery'; // keyPrefixDelivery.$deliveryResultIdentifier -->testtaker
-    const PREFIX_RESULT_ID ='taoAltResultStorage:id';
+    const PREFIX_RESULT_ID = 'taoAltResultStorage:id';
 
     /**
      * Property separator string.
@@ -121,16 +122,16 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function spawnResult()
     {
-        return "id_".$this->getPersistence()->incr(self::PREFIX_RESULT_ID);
-    }   
-    
+        return "id_" . $this->getPersistence()->incr(self::PREFIX_RESULT_ID);
+    }
+
     /**
      *
      * @param type $deliveryResultIdentifier
      *            lis_result_sourcedid
      * @param type $test
      *            ignored
-     * @param taoResultServer_models_classes_Variable $testVariable            
+     * @param taoResultServer_models_classes_Variable $testVariable
      * @param type $callIdTest
      *            ignored
      */
@@ -157,13 +158,14 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             $this->storeTestVariable($deliveryResultIdentifier, $test, $testVariable, $callIdTest);
         }
     }
-    
+
     /*
      * retrieve specific parameters from the resultserver to configure the storage
      */
     /*sic*/
     public function configure($callOptions = array())
-    {}
+    {
+    }
 
     public function storeRelatedTestTaker($deliveryResultIdentifier, $testTakerIdentifier)
     {
@@ -191,7 +193,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
         $this->storeVariableKeyValue($callIdItem, $variable->getIdentifier(), $variable);
     }
-    
+
     public function storeItemVariables($deliveryResultIdentifier, $test, $item, array $itemVariables, $callIdItem)
     {
         foreach ($itemVariables as $itemVariable) {
@@ -201,7 +203,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     /**
      * @param string|array one or more callIds (item execution identifier)
-     * @return array keys as variableIdentifier , values is an array of observations , 
+     * @return array keys as variableIdentifier , values is an array of observations ,
      * each observation is an object with deliveryResultIdentifier, test, taoResultServer_models_classes_Variable variable, callIdTest
      * Array
     (
@@ -213,8 +215,8 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
                     [test] => http://tao26/tao26.rdf#i1402389674744647
                     [variable] => taoResultServer_models_classes_OutcomeVariable Object
                         (
-                            [normalMaximum] => 
-                            [normalMinimum] => 
+                            [normalMaximum] =>
+                            [normalMinimum] =>
                             [value] => MC41
                             [identifier] => LtiOutcome
                             [cardinality] => single
@@ -273,7 +275,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             $keys = $this->getPersistence()->keys(self::PREFIX_CALL_ID . $deliveryResultIdentifier . '.*');
             foreach ($keys as $key) {
                 foreach ($this->getVariables(str_replace(self::PREFIX_CALL_ID, '', $key)) as $varId => $variable) {
-                    $variables[$variable[0]->uri.$varId] = $variable;
+                    $variables[$variable[0]->uri . $varId] = $variable;
                 }
             }
         }
@@ -288,7 +290,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
             $observations[$key] = $observation;
         }
 
-        return  $observations;   
+        return  $observations;
     }
 
     public function getTestTaker($deliveryResultIdentifier)
@@ -375,13 +377,13 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         list($itemUri, $propertyName) = $this->extractResultVariableProperty($variableId);
         $response =  $this->unserializeVariableValue(
             $this->getPersistence()->hGet(
-                self::PREFIX_CALL_ID.$itemUri,
+                self::PREFIX_CALL_ID . $itemUri,
                 $propertyName
             )
         );
         $variable = unserialize($response[0]->variable);
 
-        $getter = 'get'.ucfirst($property);
+        $getter = 'get' . ucfirst($property);
         if (method_exists($variable, $getter)) {
             return $variable->$getter();
         }
@@ -398,7 +400,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
      */
     public function extractResultVariableProperty($variableId)
     {
-        $variableIds = explode('http://',$variableId);
+        $variableIds = explode('http://', $variableId);
         $parts = explode(static::PROPERTY_SEPARATOR, $variableIds[2]);
 
         $itemUri = $variableIds[0] . 'http://' . $parts[0];
@@ -412,7 +414,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     /**
      * @todo Only works for QTI Tests, fix this in a more generic way
-     * 
+     *
      * (non-PHPdoc)
      * @see \oat\taoResultServer\models\classes\ResultManagement::getRelatedItemCallIds()
      */
@@ -426,7 +428,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
 
     /**
      * @todo Only works for QTI Tests, fix this in a more generic way
-     * 
+     *
      * (non-PHPdoc)
      * @see \oat\taoResultServer\models\classes\ResultManagement::getRelatedTestCallIds()
      */
@@ -446,7 +448,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
         foreach ($keys as $key) {
             $deliveryExecution = $this->getDelivery($key);
-            if(empty($delivery) || in_array($deliveryExecution,$delivery)){
+            if (empty($delivery) || in_array($deliveryExecution, $delivery)) {
                 $returnValue[] = array(
                     "deliveryResultIdentifier" => $key,
                     "testTakerIdentifier" => $this->getTestTaker($key),
@@ -465,7 +467,7 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
         array_walk($keys, 'self::subStrPrefix', self::PREFIX_DELIVERY);
         foreach ($keys as $key) {
             $deliveryExecution = $this->getDelivery($key);
-            if(empty($delivery) || in_array($deliveryExecution,$delivery)){
+            if (empty($delivery) || in_array($deliveryExecution, $delivery)) {
                 $count++;
             }
         }

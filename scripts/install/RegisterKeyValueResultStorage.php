@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,10 +31,10 @@ class RegisterKeyValueResultStorage extends InstallAction
         if ($service instanceof ResultServerService) {
             $service->setOption(ResultServerService::OPTION_RESULT_STORAGE, \taoAltResultStorage_models_classes_KeyValueResultStorage::SERVICE_ID);
             $this->getServiceManager()->register(ResultServerService::SERVICE_ID, $service);
-            
+
             return new \common_report_Report(\common_report_Report::TYPE_SUCCESS, 'Key Value Result Storage registered!');
         }
-        
+
         return new \common_report_Report(\common_report_Report::TYPE_WARNING, 'Key Value Storage could not be registered! Indeed, the ResultServerService is too old.');
     }
 }

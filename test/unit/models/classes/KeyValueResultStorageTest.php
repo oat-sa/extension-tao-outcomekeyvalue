@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,9 +22,8 @@
 namespace test\unit\models\classes;
 
 use oat\generis\test\TestCase;
-
 use oat\taoResultServer\models\Exceptions\DuplicateVariableException;
-use \taoAltResultStorage_models_classes_KeyValueResultStorage as KeyValueResultStorage;
+use taoAltResultStorage_models_classes_KeyValueResultStorage as KeyValueResultStorage;
 
 /**
  * Class KeyValueResultStorageTest
@@ -58,7 +58,7 @@ class KeyValueResultStorageTest extends TestCase
     {
         $baseType = 'float';
         $cardinality = 'multiple';
-        $identifier = 'ItemIdentifier#'.$id;
+        $identifier = 'ItemIdentifier#' . $id;
         $value = 'MyValue';
 
         $itemVariable = new \taoResultServer_models_classes_OutcomeVariable();
@@ -96,5 +96,4 @@ class KeyValueResultStorageTest extends TestCase
 
         return $storage;
     }
-
 }
