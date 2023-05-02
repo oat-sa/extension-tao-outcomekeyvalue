@@ -39,7 +39,7 @@ use oat\taoResultServer\models\Exceptions\DuplicateVariableException;
  * ...
  * }
  *
- * phpcs:disable Squiz.Classes.ValidClassName
+ * phpcs:disable Squiz.Classes.ValidClassName,PSR1.Classes.ClassDeclaration
  */
 class taoAltResultStorage_models_classes_KeyValueResultStorage extends ConfigurableService implements
     taoResultServer_models_classes_WritableResultStorage,
@@ -53,9 +53,12 @@ class taoAltResultStorage_models_classes_KeyValueResultStorage extends Configura
     public const OPTION_PERSISTENCE = 'persistence_id';
 
     // prefixes used for keys
-    public const PREFIX_CALL_ID = 'taoAltResultStorage:callIdVariables'; // keyPrefixCallId.$callId --> variables
-    public const PREFIX_TESTTAKER = 'taoAltResultStorage:resultsTestTaker'; // keyPrefixTestTaker.$deliveryResultIdentifier -->testtaker
-    public const PREFIX_DELIVERY = 'taoAltResultStorage:resultsDelivery'; // keyPrefixDelivery.$deliveryResultIdentifier -->testtaker
+    // keyPrefixCallId.$callId --> variables
+    public const PREFIX_CALL_ID = 'taoAltResultStorage:callIdVariables';
+    // keyPrefixTestTaker.$deliveryResultIdentifier -->testtaker
+    public const PREFIX_TESTTAKER = 'taoAltResultStorage:resultsTestTaker';
+    // keyPrefixDelivery.$deliveryResultIdentifier -->testtaker
+    public const PREFIX_DELIVERY = 'taoAltResultStorage:resultsDelivery';
     public const PREFIX_RESULT_ID = 'taoAltResultStorage:id';
 
     /**

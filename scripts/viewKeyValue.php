@@ -23,9 +23,10 @@
  *                         (under the project TAO-SUSTAIN & TAO-DEV);
  */
 
-require_once dirname(__FILE__) . '/../includes/raw_start.php';
-
 use oat\oatbox\service\ServiceManager;
+
+// phpcs:disable
+require_once dirname(__FILE__) . '/../includes/raw_start.php';
 
 //output regarding the context
 function out($msg = '')
@@ -33,6 +34,8 @@ function out($msg = '')
     print $msg;
     print (PHP_SAPI == 'cli') ? "\n" : '<br />';
 }
+// phpcs:enable
+
 out();
 out('Running ' . basename(__FILE__));
 
