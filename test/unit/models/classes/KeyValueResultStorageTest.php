@@ -16,18 +16,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2018 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
- *
  */
 
 namespace test\unit\models\classes;
 
+use common_exception_InvalidArgumentType;
+use common_persistence_Manager;
 use oat\generis\test\TestCase;
 use oat\taoResultServer\models\Exceptions\DuplicateVariableException;
 use taoAltResultStorage_models_classes_KeyValueResultStorage as KeyValueResultStorage;
+use taoResultServer_models_classes_OutcomeVariable;
 
 /**
  * Class KeyValueResultStorageTest
+ *
  * @package test\unit\models\classes
+ *
  * @author Aleh Hutnikau, <hutnikau@1pt.com>
  */
 class KeyValueResultStorageTest extends TestCase
@@ -51,8 +55,10 @@ class KeyValueResultStorageTest extends TestCase
 
     /**
      * @param $id
-     * @return \taoResultServer_models_classes_OutcomeVariable
-     * @throws \common_exception_InvalidArgumentType
+     *
+     * @throws common_exception_InvalidArgumentType
+     *
+     * @return taoResultServer_models_classes_OutcomeVariable
      */
     private function getVariable($id)
     {
@@ -61,7 +67,7 @@ class KeyValueResultStorageTest extends TestCase
         $identifier = 'ItemIdentifier#' . $id;
         $value = 'MyValue';
 
-        $itemVariable = new \taoResultServer_models_classes_OutcomeVariable();
+        $itemVariable = new taoResultServer_models_classes_OutcomeVariable();
         $itemVariable->setBaseType($baseType);
         $itemVariable->setCardinality($cardinality);
         $itemVariable->setIdentifier($identifier);
@@ -80,17 +86,17 @@ class KeyValueResultStorageTest extends TestCase
             KeyValueResultStorage::OPTION_PERSISTENCE => 'test',
         ]);
 
-        $persistenceManager = new \common_persistence_Manager([
+        $persistenceManager = new common_persistence_Manager([
             'persistences' => [
                 'test' => [
-                    'driver' => 'no_storage_adv'
+                    'driver' => 'no_storage_adv',
                 ],
-            ]
+            ],
         ]);
 
         $sl = $this->getServiceLocatorMock([
-            \common_persistence_Manager::SERVICE_ID => $persistenceManager,
-            KeyValueResultStorage::SERVICE_ID => $storage
+            common_persistence_Manager::SERVICE_ID => $persistenceManager,
+            KeyValueResultStorage::SERVICE_ID => $storage,
         ]);
         $storage->setServiceLocator($sl);
 

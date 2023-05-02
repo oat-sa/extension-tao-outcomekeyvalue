@@ -7,5 +7,5 @@
  */
 
 return new \taoAltResultStorage_models_classes_KeyValueResultStorage([
-    \taoAltResultStorage_models_classes_KeyValueResultStorage::OPTION_PERSISTENCE => 'keyValueResult'
+    \taoAltResultStorage_models_classes_KeyValueResultStorage::OPTION_PERSISTENCE => 'keyValueResult',
 ]);
