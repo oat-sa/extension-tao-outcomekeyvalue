@@ -21,7 +21,8 @@ jobs:
 
     steps:
       - name: CI
-        uses: oat-sa/tao-extension-ci-action@v1
+        # TODO FIXME Remove after check it works
+        uses: oat-sa/tao-extension-ci-action@feat/ADF-1440/separate-psr-check-from-tests
         with:
           php: ${{ matrix.php-version }}
           coverage: ${{ matrix.coverage }}
