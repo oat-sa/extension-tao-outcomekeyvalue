@@ -24,7 +24,7 @@ use common_exception_InvalidArgumentType;
 use common_persistence_Manager;
 use oat\generis\test\TestCase;
 use oat\taoResultServer\models\Exceptions\DuplicateVariableException;
-use taoAltResultStorage_models_classes_KeyValueResultStorage as KeyValueResultStorage;
+use taoAltResultStorage_models_classes_KeyValueResultStorage;
 use taoResultServer_models_classes_OutcomeVariable;
 
 /**
@@ -78,12 +78,12 @@ class KeyValueResultStorageTest extends TestCase
     }
 
     /**
-     * @return KeyValueResultStorage
+     * @return taoAltResultStorage_models_classes_KeyValueResultStorage
      */
     private function getStorage()
     {
-        $storage = new KeyValueResultStorage([
-            KeyValueResultStorage::OPTION_PERSISTENCE => 'test',
+        $storage = new taoAltResultStorage_models_classes_KeyValueResultStorage([
+            taoAltResultStorage_models_classes_KeyValueResultStorage::OPTION_PERSISTENCE => 'test',
         ]);
 
         $persistenceManager = new common_persistence_Manager([
@@ -96,7 +96,7 @@ class KeyValueResultStorageTest extends TestCase
 
         $sl = $this->getServiceLocatorMock([
             common_persistence_Manager::SERVICE_ID => $persistenceManager,
-            KeyValueResultStorage::SERVICE_ID => $storage,
+            taoAltResultStorage_models_classes_KeyValueResultStorage::SERVICE_ID => $storage,
         ]);
         $storage->setServiceLocator($sl);
 
